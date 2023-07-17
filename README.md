@@ -9,3 +9,11 @@ A wallbox (if you charge 3-phase) or the Tesla AC charger that plugs into any ac
 
 Then you want Home-Assistant as a house automation system. It is the foundation for what we do here. Home-Assistant has plenty of integrations into the typical house stuff like wall plugs, heating valves and so on. There are integrations for all the common PV brands through a community-managed integration appstore called HACS. You can run Home-Assistant on a Raspberry Pi or similar small computers. The company behind Home-Assistant does also sell ready-to-use systems with their own hardware. If you can find or have a Raspberry Pi at hand, it's cheaper and just fine.
 
+Steps:
+
+1. I assume you have a working Home Assistant installation, and the "integrations" for Tesla cars and for your PV installation were installed and are working. You should also install the "Studio Code Server" add-on to make it easy to edit your configuration.
+
+2. In Settings/helpers, add a "helper" of type "number" and give it the name input_number.num_battery_min_tesla .
+   
+3. In Home Assistant/Studio Code Server, open the file "configuration.yaml"
+4.  
