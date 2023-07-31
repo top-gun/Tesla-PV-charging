@@ -36,6 +36,7 @@ Steps:
 7.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor:
 
 ```
+
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: ""
@@ -52,15 +53,14 @@ Steps:
         {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
         {% if (PVAMP<4) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
         {% if (PVAMP<4) and (Battery>Endoffastcharge) and (Charge > 0) %} {% set PVAMP = 5 %} {% endif %} 
-        {# Unter 40% wird nur der Hausakku geladen, Auto nicht. Hysterese: Erst bei 43 anschalten, dann bis 40 runtergehen #}
+        {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
         {% if (Battery<43) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %} 
         {% if (Battery<40) and (Charge>0) %} {% set PVAMP = 0 %} {% endif %} 
-        {# Ausnahme: Bei hohem Überschuss erlaube Laden ab 20% Hausakku #}
+        {# Exception: When the PV output is really high, allow charging so we don't feed to the grid early #}
         {% if (PVAMP>11) and (Battery>20) %} {% set PVAMP = 11 %} {% endif %}
-        {# Ladeströme unter 6A werden nicht ausgeführt wegen Ineffizienz #}
-        {% if (PVAMP<2) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
-        {# Bei Hochlast z.B. wegen Herd wende Leistungsbremse an #}
+        {# Don't start charging under 3A because it's not efficient. #}
+        {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
+        {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
         {% set PVAMP = PVAMP - Throttle %}
         {{ PVAMP|int }}
-
 ```
