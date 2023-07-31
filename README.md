@@ -19,7 +19,8 @@ Steps:
 6. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
 
 7. Now, we will create a few sensors and variables that are needed to control the PV current.
-   7.1 In Settings/Devices/Helpters, create the following helpers:
+
+7.1 In Settings/Devices/Helpters, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
    
@@ -31,3 +32,33 @@ Steps:
    
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
+
+7.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor:
+
+  - sensor:
+    - name: 'Autocharge-optimal'
+      unit_of_measurement: ""
+      state: > 
+        {% set Battery = states('sensor.battery_state_of_capacity')|float %}
+        {% set PV = states('sensor.inverter_input_power')|float -500 %}
+        {% set Charge = states('sensor.tesla_charger_power')|float %}
+        {% set Throttle = states('input_number.tesla_charge_break') |float %}
+        {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
+        {# PV/230 is the current in a one phase system. For three-phase charging divide by 3! #}
+        {% set PVAMP = (PV/230/3) %}
+        {# While the house battery is below 90% ist, use only 80% of the output so the house battery will charge, too #}
+        {% if Battery<90 %} {% set PVAMP = (PVAMP*0.8) %} {% endif %}
+        {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
+        {% if (PVAMP<4) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
+        {% if (PVAMP<4) and (Battery>Endoffastcharge) and (Charge > 0) %} {% set PVAMP = 5 %} {% endif %} 
+        {# Unter 40% wird nur der Hausakku geladen, Auto nicht. Hysterese: Erst bei 43 anschalten, dann bis 40 runtergehen #}
+        {% if (Battery<43) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %} 
+        {% if (Battery<40) and (Charge>0) %} {% set PVAMP = 0 %} {% endif %} 
+        {# Ausnahme: Bei hohem Überschuss erlaube Laden ab 20% Hausakku #}
+        {% if (PVAMP>11) and (Battery>20) %} {% set PVAMP = 11 %} {% endif %}
+        {# Ladeströme unter 6A werden nicht ausgeführt wegen Ineffizienz #}
+        {% if (PVAMP<2) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
+        {# Bei Hochlast z.B. wegen Herd wende Leistungsbremse an #}
+        {% set PVAMP = PVAMP - Throttle %}
+        {{ PVAMP|int }}
+
