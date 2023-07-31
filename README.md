@@ -70,6 +70,13 @@ Attention:
 
 8. Automations:
 
-We need several automations. The most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
+We need several automations. Unfortunately, they can grow pretty long, and there is no really good way to export them. So sorry if I can only give you some very huge screenshots. If anybody know a tool for making better visual representations, please let me know.
+
+8.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust.png" width=300>
+
+8.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Leaving.png" width=300>
+
