@@ -35,6 +35,7 @@ Steps:
 
 7.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor:
 
+```
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: ""
@@ -62,3 +63,4 @@ Steps:
         {% set PVAMP = PVAMP - Throttle %}
         {{ PVAMP|int }}
 
+```
