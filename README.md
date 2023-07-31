@@ -72,6 +72,4 @@ Attention:
 
 We need several automations. The most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust-1.png" width=300>
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust-2.png" width=300>
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust-3.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust.png" width=300>
