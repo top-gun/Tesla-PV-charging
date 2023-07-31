@@ -22,14 +22,12 @@ Steps:
    7.1 In Settings/Devices/Helpters, create the following helpers:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
-   ![House Minimum SOC](pictures/House_minimum_SOC.png?raw=true "House Minimum SOC"&width=100)
+   
 
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Hand-Control.png" width=300>
+   
 
-   ![Helper Hand Control](pictures/Helper-Hand-Control.png?raw=true "Hand Control")
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_Charge_Break.png" width=300>
+   
 
-
-   ![House Charge_Break](pictures/Tesla_Charge_Break.png?raw=true "Charge Brake")
-
-
-   ![Tesla_Charge_Stop](pictures/Tesla_charge_stop.png?raw=true "Charge Stop")
-
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
