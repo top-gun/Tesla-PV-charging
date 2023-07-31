@@ -21,10 +21,7 @@ Steps:
 7. Now, we will create a few sensors and variables that are needed to control the PV current.
    7.1 In Settings/Devices/Helpters, create the following helpers:
    
-   ![House Minimum SOC](pictures/House_minimum_SOC.png?raw=true "House Minimum SOC")
-
-
-   ![Helper Hand Control](pictures/Helper-Hand-Control.png?raw=true "Hand Control")
+   ![House Minimum SOC](pictures/House_minimum_SOC.png?raw=true "House Minimum SOC") ![Helper Hand Control](pictures/Helper-Hand-Control.png?raw=true "Hand Control")
 
 
    ![House Charge_Break](pictures/Tesla_Charge_Break.png?raw=true "Charge Brake")
