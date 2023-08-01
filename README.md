@@ -87,3 +87,13 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 8.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
+
+8.5 Tesla-polling-6AM: Start polling the car status at 6:30AM. We stop polling at 11PM to make sure the car can actually sleep.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-on-polling-6AM.png" width=300>
+
+8.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
+
+Automation-turn-off-polling-11PM
