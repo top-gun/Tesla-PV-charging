@@ -95,5 +95,3 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 8.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
-
-Automation-turn-off-polling-11PM
