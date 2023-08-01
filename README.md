@@ -80,3 +80,10 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Leaving.png" width=300>
 
+8.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-1800-socket-90p.png" width=300>
+
+8.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
