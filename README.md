@@ -111,5 +111,6 @@ Basically, your car can charge without any intervention. Still, we like to monit
 
 9.1 Power Flow Card Plus: It shows you the flow of energy in your house, including the charging power to the car.
 
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-Power-flow-card.png" width=300>
 
    
