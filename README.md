@@ -104,3 +104,12 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 8.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
+
+9. Fancy visualization:
+
+Basically, your car can charge without any intervention. Still, we like to monitor and control, so I made a dashboard for this. It requires two extra front-end extensions which you can download in HACS:
+
+9.1 Power Flow Card Plus: It shows you the flow of energy in your house, including the charging power to the car.
+
+
+   
