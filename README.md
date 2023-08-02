@@ -202,7 +202,7 @@ title: Tesla Status
 
 9.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or forbid auto charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/629f9803-c3bd-4e85-a4f7-ebe033a9d079 width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/629f9803-c3bd-4e85-a4f7-ebe033a9d079" width=300>
 
 ```
 type: conditional
