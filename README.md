@@ -157,7 +157,7 @@ kw_decimals: 2
 
 9.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
 
-![image](https://github.com/top-gun/Tesla-PV-charging/assets/3148118/6e091030-75ba-48b9-be3b-978b65dd70bb)
+<img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/6e091030-75ba-48b9-be3b-978b65dd70bb" width=300>
 
 
 My configuration:
