@@ -199,3 +199,26 @@ entities:
 state_color: true
 show_header_toggle: false
 title: Tesla Status
+
+9.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or forbid auto charging.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/629f9803-c3bd-4e85-a4f7-ebe033a9d079 width=300>
+
+```
+type: conditional
+conditions:
+  - entity: input_boolean.auto_manuell
+    state: 'off'
+card:
+  type: entities
+  entities:
+    - entity: number.tesla_charge_limit
+    - entity: input_number.num_battery_min_home
+    - entity: sensor.tesla_time_charge_complete
+    - entity: input_boolean.auto_manuell
+    - entity: input_boolean.switch_tesla_no_charge
+  show_header_toggle: false
+  state_color: true
+  title: Charge Control
+```
+
