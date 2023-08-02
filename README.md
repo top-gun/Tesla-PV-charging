@@ -177,3 +177,25 @@ upper_bound_secondary: 11
 smoothing: false
 extrema: true
 ```
+9.3 Current Tesla Status: This is a regular card of the type "entities".
+
+
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/438d8f52-deaf-4521-a13d-162fb1243fd8" width=300>
+
+
+The definition:
+
+type: entities
+entities:
+  - entity: binary_sensor.tesla_charging
+  - entity: binary_sensor.tesla_charger
+    name: Tesla Ladekabel
+  - entity: sensor.autocharge_optimal
+  - entity: sensor.tesla_charger_power
+  - entity: switch.tesla_polling
+    name: Tesla Pollen
+  - entity: button.tesla_force_data_update
+state_color: true
+show_header_toggle: false
+title: Tesla Status
