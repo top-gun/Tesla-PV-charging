@@ -194,7 +194,7 @@ entities:
   - entity: sensor.autocharge_optimal
   - entity: sensor.tesla_charger_power
   - entity: switch.tesla_polling
-    name: Tesla Pollen
+    name: Allow Tesla polling
   - entity: button.tesla_force_data_update
 state_color: true
 show_header_toggle: false
