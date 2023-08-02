@@ -66,10 +66,10 @@ Attention:
         {% if (PVAMP<4) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
         {% if (PVAMP<4) and (Battery>Endoffastcharge) and (Charge > 0) %} {% set PVAMP = 5 %} {% endif %} 
         {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
-        {% if (Battery<43) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %} 
+        {% if (Battery<43) and (Charge==0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
         {% if (Battery<40) and (Charge>0) %} {% set PVAMP = 0 %} {% endif %} 
         {# Exception: When the PV output is really high, allow charging so we don't feed to the grid early #}
-        {% if (PVAMP>11) and (Battery>20) %} {% set PVAMP = 11 %} {% endif %}
+        {% if (PVAMP>6) and (Battery<40) %} {% set PVAMP = 3 %} {% endif %}
         {# Don't start charging under 3A because it's not efficient. #}
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
         {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
