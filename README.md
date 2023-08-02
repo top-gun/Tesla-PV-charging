@@ -155,3 +155,26 @@ transparency_zero_lines: 0
 kw_decimals: 2
 ```
 
+9.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
+
+![image](https://github.com/top-gun/Tesla-PV-charging/assets/3148118/6e091030-75ba-48b9-be3b-978b65dd70bb)
+
+
+My configuration:
+
+```
+type: custom:mini-graph-card
+entities:
+  - entity: sensor.tesla_battery
+  - entity: sensor.tesla_charger_power
+    name: Tesla Charge Power
+    y_axis: secondary
+    show_state: true
+hours_to_show: 6
+points_per_hour: 30
+upper_bound: 100
+lower_bound: 0
+upper_bound_secondary: 11
+smoothing: false
+extrema: true
+```
