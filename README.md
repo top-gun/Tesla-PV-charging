@@ -217,6 +217,7 @@ card:
     - entity: sensor.tesla_time_charge_complete
     - entity: input_boolean.auto_manuell
     - entity: input_boolean.switch_tesla_no_charge
+    - entity: number.tesla_charging_amps
   show_header_toggle: false
   state_color: true
   title: Charge Control
