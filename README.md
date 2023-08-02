@@ -113,4 +113,45 @@ Basically, your car can charge without any intervention. Still, we like to monit
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-Power-flow-card.png" width=300>
 
-   
+   My definition. As always, you may need to adjust sensor entities if your PV is from a different brand:
+
+```
+type: custom:power-flow-card-plus
+entities:
+  battery:
+    entity: sensor.battery_charge_discharge_power
+    state_of_charge: sensor.battery_state_of_capacity
+    invert_state: true
+  grid:
+    entity: sensor.power_meter_active_power
+    invert_state: true
+  solar:
+    entity: sensor.inverter_input_power
+    display_zero_state: true
+  home:
+    entity: hau
+  individual1:
+    entity: sensor.tesla_charger_power
+    name: Auto
+    icon: mdi:car
+    display_zero: true
+    decimals: 2
+clickable_entities: true
+display_zero_lines:
+  mode: show
+  transparency: 50
+  grey_color:
+    - 189
+    - 189
+    - 189
+use_new_flow_rate_model: true
+w_decimals: 0
+min_flow_rate: 0.75
+max_flow_rate: 6
+max_expected_power: 2000
+min_expected_power: 0.01
+watt_threshold: 1000
+transparency_zero_lines: 0
+kw_decimals: 2
+```
+
