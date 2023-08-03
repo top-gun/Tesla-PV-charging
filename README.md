@@ -18,6 +18,7 @@ It monitors the PV output from the roof and the current state of the house batte
 
 - When the house battery is below 40%, charging the house battery has full priority. No charging of the car is done, except when the PV output is very high and the house battery can't take all the power.
 - When the house battery is between 40% and 75%, 80% of the unused PV power is used to charge the car, the rest is taken by the house battery. Since the house battery is just a fraction of the car battery, that quota is generally enough to fill the house battery over the day.
+- When the house battery is between 75% and 90%, the car is charged at 80% solar output but keeping a minimum of 4kW (6Ax3) to speed up charging.
 - When the house battery is charged beyond 90%, the car gets the full surplus. Since we round off to the next lower ampere setting, some power will still go into the house battery.
 - Hysteresis: For the transition between the three stages, a hysteresis of 3-5% is built into each formula to make sure don't continually jump up and down with every cloud on the sky. This is where the house battery comes very handy: We can afford to smooth the current a bit by using the household battery as a buffer.
 - Charge with 0A: This is something the "smart wallboxes" can't do. When the PV output goes down due to clouds, we tell the car to charge at 0A, but keep the connection alive. We don't want the car to open and close the big relais every few minutes when the weather is shaky. This reduces wear on the car charger.
