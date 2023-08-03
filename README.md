@@ -68,6 +68,7 @@ Chose the type "toggle":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
 
+Chose the type "Threshold sensor":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/3f154fea-fa0a-4659-b1cd-c74d709cc63a" width=300>
 
