@@ -22,16 +22,14 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
 ## Steps:
 
-1. I assume you have a working Home Assistant installation
-2. You need to install HACS (Home Assistant Community Store), it's needed to install the integrations for your PV system and for the Tesla car.
-3. You should install "Studio Code Server", it's a comfortable editor the the Home Assistant configuration files. 
-4. In HACS, install the Tesla integration and connect it with your Tesla car. There is a good documentation in the HACS page, especially for creating the "tokens" you need to let HA talk with your car.
-5. In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s or less is a good starting point.
-6. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
-
-### 7. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
-
-7.1 In Settings/Devices/Helpters, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
+1. Installation: I assume you have a working Home Assistant installation
+   1.1 You need to install HACS (Home Assistant Community Store), it's needed to install the integrations for your PV system and for the Tesla car.
+   1.2 You should install "Studio Code Server", it's a comfortable editor the the Home Assistant configuration files. 
+   1.3 In HACS, install the Tesla integration and connect it with your Tesla car. There is a good documentation in the HACS page, especially for creating the "tokens" you need to let HA talk with your car.
+   1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s or less is a good starting point.
+2. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
+### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
+   3.1 In Settings/Devices/Helpters, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
    
@@ -44,9 +42,9 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
 
-7.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
+3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
 
-Attention: 
+### Attention: 
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
 - My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
@@ -79,39 +77,39 @@ Attention:
         {{ PVAMP|int }}
 ```
 
-### 8. Automations:
+### 4. Automations:
 
 We need several automations. Unfortunately, they can grow pretty long, and there is no really good way to export them. So sorry if I can only give you some very huge screenshots. If anybody know a tool for making better visual representations, please let me know.
 
-8.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
+   4.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust.png" width=300>
 
-8.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
+   4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Leaving.png" width=300>
 
-8.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
+   4.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-1800-socket-90p.png" width=300>
 
-8.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
+   4.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
 
-8.5 Tesla-polling-6AM: Start polling the car status at 6:30AM. We stop polling at 11PM to make sure the car can actually sleep.
+   4.5 Tesla-polling-6AM: Start polling the car status at 6:30AM. We stop polling at 11PM to make sure the car can actually sleep.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-on-polling-6AM.png" width=300>
 
-8.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
+   4.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
 
-### 9. Fancy visualization:
+### 5. Fancy visualization:
 
 Basically, your car can charge without any intervention. Still, we like to monitor and control, so I made a dashboard for this. It requires two extra front-end extensions which you can download in HACS:
 
-9.1 Power Flow Card Plus: It shows you the flow of energy in your house, including the charging power to the car.
+   5.1 Power Flow Card Plus: It shows you the flow of energy in your house, including the charging power to the car.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-Power-flow-card.png" width=300>
 
@@ -157,7 +155,7 @@ transparency_zero_lines: 0
 kw_decimals: 2
 ```
 
-9.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
+   5.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
 
 <img src="[https://github.com/top-gun/Tesla-PV-charging/assets/3148118/6e091030-75ba-48b9-be3b-978b65dd70bb](https://github.com/top-gun/Tesla-PV-charging/assets/3148118/9f1ac8a9-4fd4-4237-a633-8cc4ad5d2291)" width=300>
 
@@ -179,7 +177,7 @@ upper_bound_secondary: 11
 smoothing: false
 extrema: true
 ```
-9.3 Current Tesla Status: This is a regular card of the type "entities".
+   5.3 Current Tesla Status: This is a regular card of the type "entities".
 
 
 
@@ -202,7 +200,7 @@ state_color: true
 show_header_toggle: false
 title: Tesla Status
 
-9.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or forbid auto charging.
+   5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or forbid auto charging.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/629f9803-c3bd-4e85-a4f7-ebe033a9d079" width=300>
 
