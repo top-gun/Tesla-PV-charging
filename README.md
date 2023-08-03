@@ -50,7 +50,8 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
 3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
 
-### Attention: 
+**Attention:**
+
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
 - My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
