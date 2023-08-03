@@ -229,4 +229,3 @@ card:
   state_color: true
   title: Charge Control
 ```
-
