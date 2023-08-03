@@ -10,7 +10,20 @@ This documents my solution to charge my Tesla with PV excess. I own a Tesla Mode
 
 My aim is to both use the home-battery as a buffer to allow smoother charging of my Tesla, and to make sure that my house battery is charged to 90-100% at the end of the day. Also, it allows me to use a simple wall-box which is around 350 Euro vs the not-so-smart boxes in the 600-1000 Euro-range. We can drive the charing power in the range of 0.7kW to 11kW, that's smoother than the expensive wall boxes and we don't need to fuss around with 1/3-phase-charging and the issues many boxes have when they switch mode.
 
-This approach works well for me - I have run my Tesla for 1,500km, and this was all done with energy from my roof. :)
+This approach works well for me - I have run my Tesla for 1,500km, and this was all done with energy from my roof. 
+
+Why did I go the extra mile, when there are ready-made solutions? I looked into EVCC - it relies on smart (=expensive and complicated) wall-boxes, and is limited by the capabilities of the wallbox. It can't charge slower than the wallbox allows, which is an issue especially if the box can't switch 1/3-phase-charging. I also looked into Tesla Solar Charger. It doesn't need a special wallbox, but its charging strategies are not very smart when it comes to balancing energy between house- and vehicle-battery.
+
+## How does it do that?
+
+It monitors the PV output from the roof and the current state of the house battery. There are three main stages in the daily charging cycle:
+
+- When the house battery is below 40%, charging the house battery has full priority. No charging of the car is done, except when the PV output is very high and the house battery can't take all the power.
+- When the house battery is between 40% and 75%, 80% of the unused PV power is used to charge the car, the rest is taken by the house battery. Since the house battery is just a fraction of the car battery, that quota is generally enough to fill the house battery over the day.
+- When the house battery is between 75% and 90%, the car is charged at 80% solar output but keeping a minimum of 4kW (6Ax3) to speed up charging.
+- When the house battery is charged beyond 90%, the car gets the full surplus. Since we round off to the next lower ampere setting, some power will still go into the house battery.
+- Hysteresis: For the transition between the three stages, a hysteresis of 3-5% is built into each formula to make sure don't continually jump up and down with every cloud on the sky. This is where the house battery comes very handy: We can afford to smooth the current a bit by using the household battery as a buffer.
+- Charge with 0A: This is something the "smart wallboxes" can't do. When the PV output goes down due to clouds, we tell the car to charge at 0A, but keep the connection alive. We don't want the car to open and close the big relais every few minutes when the weather is shaky. This reduces wear on the car charger.
 
 ## Prerequisites:
 
@@ -32,24 +45,33 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
    1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s or less is a good starting point.
 
-### 2. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
+### 2. Familiarization: 
+
+Get yourself aquainted with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
 
 ### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
    3.1 In Settings/Devices/Helpters, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
 
+Chose the type "number":
+
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
    
+Chose the type "toggle":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Hand-Control.png" width=300>
-   
+
+Chose the type "number":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_Charge_Break.png" width=300>
    
+Chose the type "toggle":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
 
+Chose the type "Threshold sensor":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/3f154fea-fa0a-4659-b1cd-c74d709cc63a" width=300>
+
    
 
    3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
