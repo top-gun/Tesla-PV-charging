@@ -50,6 +50,7 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/3f154fea-fa0a-4659-b1cd-c74d709cc63a" width=300>
+
    
 
    3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
