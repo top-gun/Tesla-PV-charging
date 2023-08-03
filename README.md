@@ -22,12 +22,18 @@ Then you want Home-Assistant as a house automation system. It is the foundation 
 
 ## Steps:
 
-1. Installation: I assume you have a working Home Assistant installation
+### 1. Installation: I assume you have a working Home Assistant installation
+   
    1.1 You need to install HACS (Home Assistant Community Store), it's needed to install the integrations for your PV system and for the Tesla car.
+
    1.2 You should install "Studio Code Server", it's a comfortable editor the the Home Assistant configuration files. 
+
    1.3 In HACS, install the Tesla integration and connect it with your Tesla car. There is a good documentation in the HACS page, especially for creating the "tokens" you need to let HA talk with your car.
+
    1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s or less is a good starting point.
-2. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
+
+### 2. Get yourself familiar with the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
+
 ### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
    3.1 In Settings/Devices/Helpters, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
 
