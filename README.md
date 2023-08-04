@@ -97,8 +97,8 @@ template:
         {# While the house battery is below 90% ist, use only 80% of the output so the house battery will charge, too #}
         {% if Battery<90 %} {% set PVAMP = (PVAMP*0.8) %} {% endif %}
         {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
-        {% if (PVAMP<4) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
-        {% if (PVAMP<4) and (Battery>Endoffastcharge) and (Charge > 0) %} {% set PVAMP = 5 %} {% endif %} 
+        {% if (PVAMP<6) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
+        {% if (PVAMP<6) and (Battery>Endoffastcharge) and (Charge > 0) %} {% set PVAMP = 6 %} {% endif %} 
         {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
         {% if (Battery<43) and (Charge==0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
         {% if (Battery<40) and (Charge>0) %} {% set PVAMP = 0 %} {% endif %} 
