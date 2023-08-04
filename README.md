@@ -82,6 +82,7 @@ Chose the type "Threshold sensor":
 - My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
 
+template:
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: ""
