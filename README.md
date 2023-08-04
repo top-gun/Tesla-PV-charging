@@ -70,7 +70,7 @@ Chose the type "toggle":
 
 Chose the type "Threshold sensor":
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/3f154fea-fa0a-4659-b1cd-c74d709cc63a" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Threshold_sensor_no_charge.png)" width=300>
 
    
 
