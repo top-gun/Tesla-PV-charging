@@ -52,19 +52,19 @@ Get to know the Tesla and PV integrations before you continue. Especially, you s
 ### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
    3.1 In Settings/Devices/Helpers, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
 
-Chose the type "number":
+Chose the type "number", set to 75 as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
    
-Chose the type "toggle":
+Chose the type "toggle", set to off as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Hand-Control.png" width=300>
 
-Chose the type "number":
+Chose the type "number", set to 0 as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_Charge_Break.png" width=300>
    
-Chose the type "toggle":
+Chose the type "toggle", set to off as a stating point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_charge_stop.png" width=300>
 
