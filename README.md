@@ -108,6 +108,8 @@ template:
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
         {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
         {% set PVAMP = PVAMP - Throttle %}
+        {# avoid negative numbers. They are technically irrelevant, but irritating #}
+        {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}   <-- Die hier ist neu!
         {{ PVAMP|int }}
 ```
 
