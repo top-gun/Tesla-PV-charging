@@ -6,7 +6,7 @@ Home-Assistant can talk to all common photovoltaic systems, and it can talk to y
 
 This documents my solution to charge my Tesla with PV excess. I own a Tesla Model 3, a Huawei PV system with 8.5kW peak and 10kWh battery. The Tesla is plugged into a "dumb" wallbox that can charge with 11kW (3-phase). All charge control is done via the car API, the wallbox is dumb and does just safety stuff. You plug the car into the wallbox, and it turns on the power.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-Tesla.png">
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-advanced.png">
 
 My aim is to both use the home-battery as a buffer to allow smoother charging of my Tesla, and to make sure that my house battery is charged to 90-100% at the end of the day. Also, it allows me to use a simple wall-box which is around 350 Euro vs the not-so-smart boxes in the 600-1000 Euro-range. We can drive the charing power in the range of 0.7kW to 11kW, that's smoother than the expensive wall boxes and we don't need to fuss around with 1/3-phase-charging and the issues many boxes have when they switch mode.
 
