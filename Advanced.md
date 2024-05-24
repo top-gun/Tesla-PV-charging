@@ -142,6 +142,89 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Adjust.png" width=300>
 
+For the ease of debugging, here is the YAML definition:
+
+```
+alias: Tesla-Charge-Adjust
+description: When the car is home and charging, adjust the charging power to the PV output
+trigger:
+  - platform: time_pattern
+    minutes: /1
+condition:
+  - type: is_plugged_in
+    condition: device
+    device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+    entity_id: binary_sensor.tesla_charger
+    domain: binary_sensor
+  - condition: device
+    device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+    domain: device_tracker
+    entity_id: device_tracker.tesla_location_tracker
+    type: is_home
+  - condition: state
+    entity_id: input_boolean.auto_manuell
+    state: "off"
+action:
+  - if:
+      - condition: numeric_state
+        entity_id: sensor.autocharge_optimal
+        above: 1
+      - type: is_not_charging
+        condition: device
+        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+        entity_id: binary_sensor.tesla_charging
+        domain: binary_sensor
+    then:
+      - type: turn_on
+        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+        entity_id: af4dad29a62461eaf513223c2649107c
+        domain: switch
+  - if:
+      - condition: state
+        entity_id: binary_sensor.charge_no_current
+        state: "on"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+      - type: is_charging
+        condition: device
+        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+        entity_id: binary_sensor.tesla_charging
+        domain: binary_sensor
+    then:
+      - type: turn_off
+        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+        entity_id: switch.tesla_charger
+        domain: switch
+        enabled: true
+      - device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+        domain: number
+        entity_id: 8dfa97ec39cf127ff8849a9370377e7d
+        type: set_value
+        value: 6
+        enabled: true
+  - if:
+      - condition: numeric_state
+        entity_id: sensor.autocharge_difference
+        above: 1
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: switch.tesla_charger
+            state: "on"
+    then:
+      - service: number.set_value
+        data_template:
+          entity_id: number.tesla_charging_amps
+          value: >-
+            {% set optimal_amps = states('sensor.autocharge_optimal') | int %}
+            {{ optimal_amps }}
+        enabled: true
+mode: single
+
+```
+
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Leaving.png" width=300>
