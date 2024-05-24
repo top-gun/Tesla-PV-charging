@@ -75,7 +75,7 @@ Chose the type "Threshold sensor":
 
    
 
-   3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensor. 
+   3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensors. 
 
    **Attention:**
 
@@ -83,7 +83,6 @@ Chose the type "Threshold sensor":
 - My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
 
-template:
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
@@ -121,6 +120,17 @@ template:
         {# avoid negative numbers. They are technically irrelevant, but irritating #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
         {{ PVAMP|int }}
+
+  - sensor:
+    - name: 'Autocharge-Difference'
+      unit_of_measurement: "A"
+      state: > 
+        {% if there is a difference between optimal charge current and actual charge current, calculate the absolute value %}
+        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
+        {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
+        {% set DIFF = (CHARGE - REQUIRED)|abs %}
+        {{ DIFF|int }}
+
 
 ```
 
