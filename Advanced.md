@@ -94,15 +94,16 @@ Chose the type "Threshold sensor":
         {% set Throttle = states('input_number.tesla_charge_break') |float %}
         {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
         {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
-        
+        {% set BatteryMaxDischarge = 4500 %}
+
         {# if Grid>0 %} {% set Grid = 0 %} {% endif #}
         {# PV/230 is the current in a one phase system. For three-phase charging divide by 3! #}
         {% set PVAMP = (PV/230/3) %}
         {% if Battery>97 %} {% set PVAMP = PVAMP+1 %} {% endif %}
-        {# While the house battery is below 90% ist, use only 80% of the output so the house battery will charge, too #}
+        {# While the house battery is below 90% ist, use only 70% of the output so the house battery will charge, too #}
         {% if Battery<90 %} {% set PVAMP = (PVAMP*0.7) %} {% endif %}
         {% if (Teslabattery>90) and (Battery<80) %} {% set PVAMP = PVAMP * 0.5 %} {% endif %}
-        {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
+        {# When the house battery is above "Endoffastcharge", use at least 6A. When starting, use +5 for hysteresis #}
         {% if (PVAMP<6) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
         {% if (PVAMP<6) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif %} 
         {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
@@ -115,7 +116,7 @@ Chose the type "Threshold sensor":
         {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
         {% set PVAMP = PVAMP - Throttle %}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
-        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV+4500+Grid)/230/3) |int %} {% endif %}
+        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
         {# avoid negative numbers. They are technically irrelevant, but irritating #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
@@ -130,7 +131,6 @@ Chose the type "Threshold sensor":
         {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
-
 
 ```
 
