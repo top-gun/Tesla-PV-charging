@@ -140,7 +140,7 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    4.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-Tesla-adjust.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Adjust.png" width=300>
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
@@ -257,24 +257,58 @@ state_color: true
 show_header_toggle: false
 title: Tesla Status
 
-   5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or forbid auto charging.
+   5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or express charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/629f9803-c3bd-4e85-a4f7-ebe033a9d079" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/pictures/Exteded-Charge-Control.png" width=300>
 
 ```
 type: conditional
 conditions:
-  - entity: input_boolean.auto_manuell
-    state: 'off'
+  - condition: state
+    entity: binary_sensor.tesla_charger
+    state: 'on'
 card:
   type: entities
   entities:
-    - entity: number.tesla_charge_limit
-    - entity: input_number.num_battery_min_home
-    - entity: sensor.tesla_time_charge_complete
     - entity: input_boolean.auto_manuell
-    - entity: input_boolean.switch_tesla_no_charge
-    - entity: number.tesla_charging_amps
+      name: Manual control
+    - type: conditional
+      conditions:
+        - entity: input_boolean.auto_manuell
+          state: 'off'
+      row:
+        entity: input_boolean.tesla_express
+        name: Express Mode
+    - type: conditional
+      conditions:
+        - entity: input_boolean.auto_manuell
+          state: 'on'
+      row:
+        entity: switch.tesla_charger
+    - type: conditional
+      conditions:
+        - entity: input_boolean.auto_manuell
+          state: 'on'
+      row:
+        entity: number.tesla_charging_amps
+        name: Charge Amps
+    - type: conditional
+      conditions:
+        - entity: input_boolean.auto_manuell
+          state: 'off'
+        - entity: input_boolean.tesla_express
+          state: 'off'
+      row:
+        entity: input_number.num_battery_min_home
+    - entity: number.tesla_charge_limit
+      name: Charge Limit
+    - type: conditional
+      conditions:
+        - entity: switch.tesla_charger
+          state: 'on'
+      row:
+        entity: sensor.tesla_time_charge_complete
+        name: Charge complete
   show_header_toggle: false
   state_color: true
   title: Charge Control
