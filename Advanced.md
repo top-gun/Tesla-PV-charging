@@ -185,31 +185,22 @@ entities:
   solar:
     entity: sensor.inverter_input_power
     display_zero_state: true
-  home:
-    entity: hau
-  individual1:
-    entity: sensor.tesla_charger_power
-    name: Auto
-    icon: mdi:car
-    display_zero: true
-    decimals: 2
+  individual:
+    - entity: sensor.tesla_charger_power
+      display_zero: true
+      name: Tesla
+      icon: mdi:car
 clickable_entities: true
-display_zero_lines:
-  mode: show
-  transparency: 50
-  grey_color:
-    - 189
-    - 189
-    - 189
+display_zero_lines: true
 use_new_flow_rate_model: true
 w_decimals: 0
+kw_decimals: 1
 min_flow_rate: 0.75
 max_flow_rate: 6
 max_expected_power: 2000
 min_expected_power: 0.01
 watt_threshold: 1000
 transparency_zero_lines: 0
-kw_decimals: 2
 ```
 
    5.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
