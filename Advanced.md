@@ -82,14 +82,15 @@ Chose the type "Threshold sensor":
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
 - My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
-
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
       state: > 
+        {# calculate the optimal charge current based on several parameters: #}
+        {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
+        {% set PV = states('sensor.inverter_input_power')|float -500 %}
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
-        {% set PV = states('sensor.inverter_input_power')|float -500 %}
         {% set Charge = states('sensor.tesla_charger_power')|float %}
         {% set Throttle = states('input_number.tesla_charge_break') |float %}
         {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
@@ -121,16 +122,6 @@ Chose the type "Threshold sensor":
         {# avoid negative numbers. They are technically irrelevant, but irritating #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
         {{ PVAMP|int }}
-
-  - sensor:
-    - name: 'Autocharge-Difference'
-      unit_of_measurement: "A"
-      state: > 
-        {% if there is a difference between optimal charge current and actual charge current, calculate the absolute value %}
-        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
-        {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
-        {% set DIFF = (CHARGE - REQUIRED)|abs %}
-        {{ DIFF|int }}
 
 ```
 
