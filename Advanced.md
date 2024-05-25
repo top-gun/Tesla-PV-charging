@@ -324,7 +324,7 @@ title: Tesla Status
 
    5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or express charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/pictures/Exteded-Charge-Control.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Exteded-Charge-Control.png" width=300>
 
 ```
 type: conditional
