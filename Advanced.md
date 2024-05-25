@@ -279,7 +279,7 @@ transparency_zero_lines: 0
 
    5.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
 
-<img src="https://github.com/top-gun/Tesla-PV-charging/pictures/Mini-Graph-Card.png" width=300>
+<img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Mini-Graph-Card.png" width=300>
 
 My configuration:
 
