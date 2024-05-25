@@ -218,7 +218,7 @@ mode: single
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Leaving.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Advanced-Tesla-Leaving.png" width=300>
 
    4.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
 
@@ -279,7 +279,7 @@ transparency_zero_lines: 0
 
    5.2 Mini-Graph-Card: It shows a graph with the car's SOC and the charging power over the last six hours (adjustable).
 
-<img src="[https://github.com/top-gun/Tesla-PV-charging/assets/3148118/6e091030-75ba-48b9-be3b-978b65dd70bb](https://github.com/top-gun/Tesla-PV-charging/assets/3148118/9f1ac8a9-4fd4-4237-a633-8cc4ad5d2291)" width=300>
+<img src="https://github.com/top-gun/Tesla-PV-charging/pictures/Mini-Graph-Card.png" width=300>
 
 My configuration:
 
