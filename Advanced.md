@@ -123,6 +123,18 @@ Chose the type "Threshold sensor":
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
         {{ PVAMP|int }}
 
+  - sensor:
+    - name: 'Autocharge-Difference'
+      unit_of_measurement: "A"
+      state: > 
+        {# if there is a difference between optimal charge current and actual charge current, calculate the absolute value #}
+        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
+        {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
+        {% set DIFF = (CHARGE - REQUIRED)|abs %}
+        {{ DIFF|int }}
+
+
+
 ```
 
 ### 4. Automations:
