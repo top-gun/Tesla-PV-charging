@@ -88,7 +88,7 @@ Chose the type "Threshold sensor":
       state: > 
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
-        {% set PV = states('sensor.inverter_input_power')|float -500 %}
+        {% set PV = states('sensor.filtered_inverter_power')|float -500 %}
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
         {% set Charge = states('sensor.tesla_charger_power')|float %}
@@ -133,6 +133,14 @@ Chose the type "Threshold sensor":
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
 
+sensor:
+  - platform: filter
+    name: "filtered inverter power"
+    entity_id: sensor.inverter_input_power
+    filters:
+      - filter: time_simple_moving_average
+        window_size: "00:03"
+        precision: 0
 
 
 ```
