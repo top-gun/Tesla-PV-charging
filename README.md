@@ -10,7 +10,7 @@ This documents my solution to charge my Tesla with PV excess. I own a Tesla Mode
 
 My aim is to both use the home-battery as a buffer to allow smoother charging of my Tesla, and to make sure that my house battery is charged to 90-100% at the end of the day. Also, it allows me to use a simple wall-box which is around 350 Euro vs the not-so-smart boxes in the 600-1000 Euro-range. We can drive the charing power in the range of 0.7kW to 11kW, that's smoother than the expensive wall boxes and we don't need to fuss around with 1/3-phase-charging and the issues many boxes have when they switch mode.
 
-This approach works well for me - I have run my Tesla for 16,000km so far, and except during the winter, it operates solely on solar excess power. 
+This approach works well for me - I have run my Tesla for 19,000km so far, and except during the winter, it operates solely on solar excess power. 
 
 Why did I go the extra mile, when there are ready-made solutions? I looked into EVCC - it relies on smart (=expensive and complicated) wall-boxes, and is limited by the capabilities of the wallbox. It can't charge slower than the wallbox allows, which is an issue especially if the box can't switch 1/3-phase-charging. I also looked into Tesla Solar Charger. It doesn't need a special wallbox, but its charging strategies are not very flexible when it comes to balancing energy between house- and vehicle-battery.
 
