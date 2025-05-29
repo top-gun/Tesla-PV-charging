@@ -132,15 +132,6 @@ Chose the type "Threshold sensor":
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
 
-sensor:
-  - platform: filter
-    name: "filtered inverter power"
-    entity_id: sensor.inverter_input_power
-    filters:
-      - filter: time_simple_moving_average
-        window_size: "00:03"
-        precision: 0
-
 
 ```
 
@@ -152,7 +143,7 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Adjust.png" width=300>
 
-For the ease of debugging, here is the YAML definition:
+For the ease of debugging, here is the YAML definition: Keep in mind: My car is "Tesla BLE F549C4". If yours is "Thors_Hammer", the entity names need to be adjusted.
 
 ```
 alias: Tesla-charge-adjust
