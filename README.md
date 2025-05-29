@@ -88,15 +88,13 @@ Chose the type "Threshold sensor":
       state: > 
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
+        {# PV is the current yield of my Huawei solar inverter. Adjust for your PV system. The number is in Kilowatts. If yours in in Watt, remove the "* 1000" #} 
         {% set PV = states('sensor.inverter_input_power')|float * 1000 -500 %}
-        {% set PV_exact = states('sensor.inverter_input_power')|float*1000 -500 %}
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
         {# Grid is positive when we export and negative if we import #}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
-        {% set Charge = states('sensor.tesla_charger_power')|float %}
-        {% set Throttle = states('input_number.tesla_charge_break') |float %}
-        {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
-        {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
+        {% set Charge = states('sensor.tesla_ble_f549c4_charge_current')|float %}
+        {% set Teslabattery = states('sensor.tesla_ble_f549c4_charge_level') |float (0) %}
         {% set BatteryMaxDischarge = 4500 %}
 
         {% if Grid>0 %} {% set Grid = 0 %} {% endif %}
@@ -117,7 +115,7 @@ Chose the type "Threshold sensor":
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
         {# If we pull from the grid, adjust the charge current accordingly. In my system, Gridimport is a negative number #}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
-        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV_exact + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
+        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
         {# avoid negative numbers. #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
