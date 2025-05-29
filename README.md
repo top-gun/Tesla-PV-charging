@@ -8,11 +8,11 @@ This documents my solution to charge my Tesla with PV excess. I own a Tesla Mode
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/GUI-advanced.png">
 
-My aim is to both use the home-battery as a buffer to allow smoother charging of my Tesla, and to make sure that my house battery is charged to 90-100% at the end of the day. Also, it allows me to use a simple wall-box which is around 350 Euro vs the not-so-smart boxes in the 600-1000 Euro-range. We can drive the charing power in the range of 0.7kW to 11kW, that's smoother than the expensive wall boxes and we don't need to fuss around with 1/3-phase-charging and the issues many boxes have when they switch mode.
+My aim is to both use the home-battery as a buffer to allow smoother charging of my Tesla, and to make sure that my house battery is charged to 90-100% at the end of the day. Also, it allows me to use a simple wall-box which is around 350 Euro vs the not-so-smart boxes in the 600-1000 Euro-range. We can control the charging power in the range of 0.7kW to 11kW, that's smoother than the expensive wall boxes and we don't need to fuss around with 1/3-phase-charging and the issues many boxes have when they switch mode.
 
-This approach works well for me - I have run my Tesla for 19,000km so far, and except during the winter, it operates solely on solar excess power. 
+This approach works well for me - I have run my Tesla for 33,000km so far, and except during the winter, it operates solely on solar excess power. 
 
-Why did I go the extra mile, when there are ready-made solutions? I looked into EVCC - it relies on smart (=expensive and complicated) wall-boxes, and is limited by the capabilities of the wallbox. It can't charge slower than the wallbox allows, which is an issue especially if the box can't switch 1/3-phase-charging. I also looked into Tesla Solar Charger. It doesn't need a special wallbox, but its charging strategies are not very flexible when it comes to balancing energy between house- and vehicle-battery.
+Why did I go the extra mile, when there are ready-made solutions? I looked into EVCC - it relies on smart (=expensive and complicated) wall-boxes, and is limited by the capabilities of the wallbox. It can't charge slower than the wallbox allows, which is an issue especially if the box can't switch 1/3-phase-charging. I also looked into Tesla Solar Charger. It doesn't need a special wallbox, but with Tesla charging for their API, Patrick had to charge for the product, too.
 
 ## How does it do that?
 
@@ -34,28 +34,27 @@ A wallbox (if you charge 3-phase) or the Tesla AC charger that plugs into any ac
 
 Then you want Home-Assistant as a house automation system. It is the foundation for what we do here. Home-Assistant has plenty of integrations into the typical house stuff like wall plugs, heating valves and so on. There are integrations for all the common PV brands through a community-managed integration appstore called HACS. You can run Home-Assistant on a Raspberry Pi or similar small computers. The company behind Home-Assistant does also sell ready-to-use systems with their own hardware. If you can find or have a Raspberry Pi at hand, it's cheaper and just fine.
 
+ESP32 for BLE-control: Since 2025, Tesla charges for the use of their API. Commands are especially expensive, and since PV output varies wildly with every cloud on the sky, we send a lot of commands. Therefore, I switched to Bluetooth (BLE)-control of the car. What you need is a cheap mini-computer "ESP32" which is available on Amazon or Ali Express for about 5 Euro/USD. The simplest ones are called "NodeMCU Devkit-C" and are absolutely adequate for the job. I recommend to buy from Amazon as it's faster, but you can save a bit ordering from AliExpress. I recommend these: https://www.amazon.de/diymore-NodeMCU-Nodemcu-Development-Bluetooth/dp/B0C6QHLGJG . If you find one without the soldered pins it's actually more practical because you only plug in a USB-C power cable. These have a modified processor. Some are labelled as ESP32-C3. You can use them, it needs just a few extra lines in the configuration later on in this document. Each ESP32 gets paired to one vehicle. If you own two Teslas, get two ESP32-dongles. They are usually sold in packs of two or three anyway.
+
 ## Steps:
 
 ### 1. Installation: I assume you have a working Home Assistant installation
    
-   1.1 You need to install HACS (Home Assistant Community Store), it's needed to install the integrations for your PV system and for the Tesla car.
+   1.1 You need to install HACS (Home Assistant Community Store), it's needed to install most PV integrations, and for some fancy stuff we will use for the Dashboard.
 
-   1.2 You should install "Studio Code Server", it's a comfortable editor the the Home Assistant configuration files. 
+   1.2 You should install "Studio Code Server", it's a comfortable editor for the Home Assistant configuration files. 
 
-   1.3 In HACS, install the Tesla integration and connect it with your Tesla car. There is a good documentation in the HACS page, especially for creating the "tokens" you need to let HA talk with your car.
-
-   1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s or less is a good starting point.
+   1.3 Tesla control: In Home Assistant, you need the Add-On "Home-Assistant ESP Device Builder". This programs the ESP32 dongle that will talk to your car, controlling the charge process. I wrote an extra guide that explains how to set up the Add-on, program your ESP32 for the task, and how to pair the ESP32 to your car. The guide is here: https://docs.google.com/document/d/1W33jPQH4uAfSzb8rHvg7sBFm9zY_D-149qrtlnRN2xQ/edit?usp=sharing 
+Follow the instructions to the end. You will now be able to see your Tesla in Home Assistant as a new device, see the SOC and if it's charging, and you can manually control the charger, even setting the charing current in Amps. We will learn how to automatically charge the car later on :)
+   
+   1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s is a good starting point.
 
 ### 2. Get familiar with the integrations: 
 
-Get to know the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla updates the location and the charging port status when you get home and plug the cable in.
+Get to know the Tesla and PV integrations before you continue. Especially, you should get a feeling on how fast the integrations update and check if your Tesla is recognised when you get home. The BLE-radio on the ESP32 works pretty well. I can use it from inside my living room to control the car, but every house is different. If your house is made with lots of steel-reinforced concrete, you may need to move the ESP32 closer to the car. It needs only a 5V handy-charger and wifi coverage to talk with your Home Assistant-server.
 
 ### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
-   3.1 In Settings/Devices/Helpers, create the following helpers. Keep in mind: My car is called "Tesla" in HA. If yours is Coolest-car-ever, you will want to change the entity names from "xxx.Tesla-xxx" to "xxx.Coolest-car-ever.xxx":
-
-Chose the type "number", set to 75 as a starting point:
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/House_minimum_SOC.png" width=300>
+   3.1 In Settings/Devices/Helpers, create the following helpers. Keep in mind: My car is called "Tesla BLE F549C4" in HA. You may call your car "Tin Lizzy" or "Thors Hammover", that's fine, but the names of your entities will follow your creative outbreak. 
    
 Chose the type "toggle", set to off as a starting point:
 
