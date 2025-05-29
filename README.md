@@ -84,11 +84,14 @@ Chose the type "Threshold sensor":
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
+      state_class: measurement
       state: > 
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
-        {% set PV = states('sensor.filtered_inverter_power')|float -500 %}
+        {% set PV = states('sensor.inverter_input_power')|float * 1000 -500 %}
+        {% set PV_exact = states('sensor.inverter_input_power')|float*1000 -500 %}
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
+        {# Grid is positive when we export and negative if we import #}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
         {% set Charge = states('sensor.tesla_charger_power')|float %}
         {% set Throttle = states('input_number.tesla_charge_break') |float %}
@@ -96,31 +99,32 @@ Chose the type "Threshold sensor":
         {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
         {% set BatteryMaxDischarge = 4500 %}
 
-        {# if Grid>0 %} {% set Grid = 0 %} {% endif #}
+        {% if Grid>0 %} {% set Grid = 0 %} {% endif %}
         {# PV/230 is the current in a one phase system. For three-phase charging divide by 3! #}
-        {% set PVAMP = (PV/230/3) %}
+        {% set PVAMP = ((PV-HP)/230/3) %}
         {% if Battery>97 %} {% set PVAMP = PVAMP+1 %} {% endif %}
         {# While the house battery is below 90% ist, use only 70% of the output so the house battery will charge, too #}
-        {% if Battery<90 %} {% set PVAMP = (PVAMP*0.7) %} {% endif %}
-        {% if (Teslabattery>90) and (Battery<80) %} {% set PVAMP = PVAMP * 0.5 %} {% endif %}
-        {# When the house battery is above "Endoffastcharge", use at least 6A. When starting, use +5 for hysteresis #}
-        {% if (PVAMP<6) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
-        {% if (PVAMP<6) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif %} 
-        {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
+        {% if Battery<90 and Battery>65 %} {% set PVAMP = PVAMP * 0.8 %} {% endif %}
+        {% if Battery<=65 %} {% set PVAMP = PVAMP*0.7 %} {% endif %}
+        {% if (Teslabattery>85) and (Battery<85) %} {% set PVAMP = PVAMP * 0.8 %} {% endif %}
+        {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
+        {# if (PVAMP<5) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 5 %} {% endif #} 
+        {# if (PVAMP<5) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif #} 
+        {# Under 30%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
         {# Exception: When the PV output is really high, allow charging so we don't feed to the grid early #}
-        {% if (Battery<43) and (Charge==0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
-        {% if (Battery<40) and (Charge>0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
-        {% if (PVAMP>6) and (Battery<40) %} {% set PVAMP = 3 %} {% endif %}
+        {% if (Battery<30) and (Charge==0) and (PVAMP<6)  %} {% set PVAMP = 0 %} {% endif %} 
         {# Don't start charging under 3A because it's not efficient. #}
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
-        {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
-        {% set PVAMP = PVAMP - Throttle %}
+        {# If we pull from the grid, adjust the charge current accordingly. In my system, Gridimport is a negative number #}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
-        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
+        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV_exact + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
-        {# avoid negative numbers. They are technically irrelevant, but irritating #}
+        {# avoid negative numbers. #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
+        {# tesla_gridladen is a command to load the car from the grid #}
+        {# if is_state('input_boolean.tesla_gridladen', 'on') %} {% set PVAMP = 16 %} {% endif #}
         {{ PVAMP|int }}
+
 
   - sensor:
     - name: 'Autocharge-Difference'
