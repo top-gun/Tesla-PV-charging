@@ -123,17 +123,27 @@ Chose the type "Threshold sensor":
         {# if is_state('input_boolean.tesla_gridladen', 'on') %} {% set PVAMP = 16 %} {% endif #}
         {{ PVAMP|int }}
 
+  - sensor:
+    - name: 'Tesla-Chargepower'
+      unit_of_measurement: "kW"
+      state: > 
+        {% set AMPS = states('number.tesla_ble_f549c4_charging_amps')|float %}
+        {% set CHARGER = states('switch.tesla_ble_f549c4_charger_switch') %}
+        {% set DOOR = states('binary_sensor.tesla_ble_f549c4_charge_flap') %}
+        {% set kW = 0 %}
+        {# if is_state('binary_sensor.tesla_ble_f549c4_asleep','off') and is_state('switch.tesla_ble_f549c4_charger_switch','on') and is_state('binary_sensor.tesla_ble_f549c4_charge_flap','on') and is_state('binary_sensor.tesla_ble_f549c4_status','on') %} {% set kW = AMPS*230*3/1000 %} {% endif #}
+        {% set kW = states('sensor.tesla_charger_power') %}
+        {{ kW }}
 
   - sensor:
     - name: 'Autocharge-Difference'
       unit_of_measurement: "A"
       state: > 
         {# if there is a difference between optimal charge current and actual charge current, calculate the absolute value #}
-        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
+        {% set CHARGE = states('number.tesla_ble_f549c4_charging_amps')|float %}
         {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
-
 
 ```
 
