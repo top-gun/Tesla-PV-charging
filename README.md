@@ -271,13 +271,6 @@ mode: single
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
 
-   4.5 Tesla-polling-6AM: Start polling the car status at 6:30AM. We stop polling at 11PM to make sure the car can actually sleep.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-on-polling-6AM.png" width=300>
-
-   4.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
 
 ### 5. Fancy visualization:
 
@@ -303,10 +296,19 @@ entities:
     entity: sensor.inverter_input_power
     display_zero_state: true
   individual:
-    - entity: sensor.tesla_charger_power
+    - entity: sensor.tesla_chargepower
       display_zero: true
       name: Tesla
       icon: mdi:car
+      secondary_info:
+        entity: sensor.tesla_ble_f549c4_charge_level
+        unit_of_measurement: "%"
+      unit_white_space: true
+      use_metadata: false
+  fossil_fuel_percentage:
+    secondary_info: {}
+  home:
+    secondary_info: {}
 clickable_entities: true
 display_zero_lines: true
 use_new_flow_rate_model: true
