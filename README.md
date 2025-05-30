@@ -91,7 +91,6 @@ Chose the type "Threshold sensor":
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
         {% set Charge = states('sensor.tesla_charger_power')|float %}
-        {% set Throttle = states('input_number.tesla_charge_break') |float %}
         {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
         {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
         {% set BatteryMaxDischarge = 4500 %}
@@ -113,8 +112,6 @@ Chose the type "Threshold sensor":
         {% if (PVAMP>6) and (Battery<40) %} {% set PVAMP = 3 %} {% endif %}
         {# Don't start charging under 3A because it's not efficient. #}
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
-        {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
-        {% set PVAMP = PVAMP - Throttle %}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
         {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
@@ -274,13 +271,6 @@ mode: single
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
 
-   4.5 Tesla-polling-6AM: Start polling the car status at 6:30AM. We stop polling at 11PM to make sure the car can actually sleep.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-on-polling-6AM.png" width=300>
-
-   4.6 Tesla-stop-polling-11PM: Stop polling at 11PM to make sure the car can actually sleep.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-turn-off-polling-11PM.png" width=300>
 
 ### 5. Fancy visualization:
 
@@ -306,10 +296,19 @@ entities:
     entity: sensor.inverter_input_power
     display_zero_state: true
   individual:
-    - entity: sensor.tesla_charger_power
+    - entity: sensor.tesla_chargepower
       display_zero: true
       name: Tesla
       icon: mdi:car
+      secondary_info:
+        entity: sensor.tesla_ble_f549c4_charge_level
+        unit_of_measurement: "%"
+      unit_white_space: true
+      use_metadata: false
+  fossil_fuel_percentage:
+    secondary_info: {}
+  home:
+    secondary_info: {}
 clickable_entities: true
 display_zero_lines: true
 use_new_flow_rate_model: true
