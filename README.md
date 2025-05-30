@@ -21,7 +21,7 @@ It monitors the PV output from the roof and the current state of the house batte
 - When the house battery is below 40%, charging the house battery has full priority. No charging of the car is done, except when the PV output is very high and the house battery can't take all the power.
 - When the house battery is between 40% and 75%, 70% of the unused PV power is used to charge the car, the rest is taken by the house battery. Since the house battery is just a fraction of the car battery, that quota is generally enough to fill the house battery over the day.
 - When the house battery is between 75% and 90%, the car is charged at 80% solar output but keeping a minimum of 4kW (6Ax3) to speed up charging.
-- When the house battery is charged beyond 90%, the car gets the full surplus. Since we round off to the next lower ampere setting, some energy will still go into the house battery.
+- When the house battery is charged beyond 90%, the car gets the full surplus. Since we round off to the next lower ampere setting, some power will still go into the house battery.
 - Hysteresis: For the transition between the three stages, a hysteresis of 3-5% is built into each formula to make sure don't continually jump up and down with every cloud on the sky. This is where the house battery comes very handy: We can afford to smooth the current a bit by using the household battery as a buffer.
 - Charge with 0A: This is something the "smart wallboxes" can't do. When the PV output goes down due to clouds, we tell the car to charge at 0A, but keep the connection alive. We don't want the car to open and close the big relais every few minutes when the weather is shady.
 - Express mode: I added an "Express mode" which aims to charge the car battery as fast as possible and uses house battery energy in addition to solar output. This is practical for days when I need to head to the office, but expect lots of sunshine. It makes sense to shift battery power into the car and then have the house battery recharge during the day. This stops automatically at 20% SOC of the house battery. The formula does also minds the combined maximum inverter power. My PV can deliver 8.5kW max, my house battery can deliver 5kW, but the inverter is limited to 10kW maximum power. So the consumption has to stay below 10kW to avoid grid import.
@@ -34,7 +34,7 @@ A wallbox (if you charge 3-phase) or the Tesla AC charger that plugs into any ac
 
 Then you want Home-Assistant as a house automation system. It is the foundation for what we do here. Home-Assistant has plenty of integrations into the typical house stuff like wall plugs, heating valves and so on. There are integrations for all the common PV brands through a community-managed integration appstore called HACS. You can run Home-Assistant on a Raspberry Pi or similar small computers. The company behind Home-Assistant does also sell ready-to-use systems with their own hardware. If you can find or have a Raspberry Pi at hand, it's cheaper and just fine.
 
-ESP32 for BLE-control: Since 2025, Tesla charges for the use of their API. Commands are especially expensive, and since PV output varies wildly with every cloud on the sky, we send a lot of commands. Therefore, I switched to Bluetooth (BLE)-control of the car. What you need is a cheap mini-computer "ESP32" which is available on Amazon or Ali Express for about 5 Euro/USD. The simplest ones are called "NodeMCU Devkit-C" and are absolutely adequate for the job. I recommend to buy from Amazon as it's faster, but you can save a bit ordering from AliExpress. I recommend these: https://www.amazon.de/diymore-NodeMCU-Nodemcu-Development-Bluetooth/dp/B0C6QHLGJG . If you find one without the soldered pins it's actually more practical because you only plug in a USB-C power cable. These have a modified processor. Some are labelled as ESP32-C3. You can use them, it needs just a few extra lines in the configuration later on in this document. Each ESP32 gets paired to one vehicle. If you own two Teslas, get two ESP32-dongles. They are usually sold in packs of two or three anyway.
+ESP32 for BLE-control: An inexpensive (5-8 Euro) device to avoid the cloud charges from Tesla. Since 2025, Tesla charges for the use of their cloud API. Commands are especially expensive, and since PV output varies wildly with every cloud on the sky, we send a lot of commands. Therefore, I switched to Bluetooth (BLE)-control of the car. What you need is a cheap mini-computer "ESP32" which is available on Amazon or Ali Express for about 5 Euro/USD. The simplest ones are called "NodeMCU Devkit-C" and are adequate for the job. I recommend to buy from Amazon as it's faster, but you can save a bit ordering from AliExpress. I recommend these: https://www.amazon.de/diymore-NodeMCU-Nodemcu-Development-Bluetooth/dp/B0C6QHLGJG . If you find one without the soldered pins it's actually more practical because you only plug in a USB-C power cable. These have a modified processor. Some are labelled as ESP32-C3. You can use them, it needs just a few extra lines in the configuration later on in this document. Each ESP32 gets paired to one vehicle. If you own two Teslas, get two ESP32-dongles. They are usually sold in packs of two or three anyway.
 
 ## Steps:
 
@@ -79,71 +79,68 @@ Chose the type "Threshold sensor":
    **Attention:**
 
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
-- My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
+- My car is called "Tesla BLE F549C4", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
-      state_class: measurement
       state: > 
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
-        {# PV is the current yield of my Huawei solar inverter. Adjust for your PV system. The number is in Kilowatts. If yours in in Watt, remove the "* 1000" #} 
-        {% set PV = states('sensor.inverter_input_power')|float * 1000 -500 %}
+        {% set PV = states('sensor.filtered_inverter_power')|float -500 %}
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
-        {# Grid is positive when we export and negative if we import #}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
-        {% set Charge = states('sensor.tesla_ble_f549c4_charge_current')|float %}
-        {% set Teslabattery = states('sensor.tesla_ble_f549c4_charge_level') |float (0) %}
+        {% set Charge = states('sensor.tesla_charger_power')|float %}
+        {% set Throttle = states('input_number.tesla_charge_break') |float %}
+        {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
+        {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
         {% set BatteryMaxDischarge = 4500 %}
 
-        {% if Grid>0 %} {% set Grid = 0 %} {% endif %}
+        {# if Grid>0 %} {% set Grid = 0 %} {% endif #}
         {# PV/230 is the current in a one phase system. For three-phase charging divide by 3! #}
-        {% set PVAMP = ((PV-HP)/230/3) %}
+        {% set PVAMP = (PV/230/3) %}
         {% if Battery>97 %} {% set PVAMP = PVAMP+1 %} {% endif %}
         {# While the house battery is below 90% ist, use only 70% of the output so the house battery will charge, too #}
-        {% if Battery<90 and Battery>65 %} {% set PVAMP = PVAMP * 0.8 %} {% endif %}
-        {% if Battery<=65 %} {% set PVAMP = PVAMP*0.7 %} {% endif %}
-        {% if (Teslabattery>85) and (Battery<85) %} {% set PVAMP = PVAMP * 0.8 %} {% endif %}
-        {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
-        {# if (PVAMP<5) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 5 %} {% endif #} 
-        {# if (PVAMP<5) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif #} 
-        {# Under 30%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
+        {% if Battery<90 %} {% set PVAMP = (PVAMP*0.7) %} {% endif %}
+        {% if (Teslabattery>90) and (Battery<80) %} {% set PVAMP = PVAMP * 0.5 %} {% endif %}
+        {# When the house battery is above "Endoffastcharge", use at least 6A. When starting, use +5 for hysteresis #}
+        {% if (PVAMP<6) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 6 %} {% endif %} 
+        {% if (PVAMP<6) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif %} 
+        {# Under 40%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
         {# Exception: When the PV output is really high, allow charging so we don't feed to the grid early #}
-        {% if (Battery<30) and (Charge==0) and (PVAMP<6)  %} {% set PVAMP = 0 %} {% endif %} 
+        {% if (Battery<43) and (Charge==0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
+        {% if (Battery<40) and (Charge>0) and (PVAMP<6) %} {% set PVAMP = 0 %} {% endif %} 
+        {% if (PVAMP>6) and (Battery<40) %} {% set PVAMP = 3 %} {% endif %}
         {# Don't start charging under 3A because it's not efficient. #}
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
-        {# If we pull from the grid, adjust the charge current accordingly. In my system, Gridimport is a negative number #}
+        {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
+        {% set PVAMP = PVAMP - Throttle %}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
         {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
-        {# avoid negative numbers. #}
+        {# avoid negative numbers. They are technically irrelevant, but irritating #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
-        {# tesla_gridladen is a command to load the car from the grid #}
-        {# if is_state('input_boolean.tesla_gridladen', 'on') %} {% set PVAMP = 16 %} {% endif #}
         {{ PVAMP|int }}
-
-  - sensor:
-    - name: 'Tesla-Chargepower'
-      unit_of_measurement: "kW"
-      state: > 
-        {% set AMPS = states('number.tesla_ble_f549c4_charging_amps')|float %}
-        {% set CHARGER = states('switch.tesla_ble_f549c4_charger_switch') %}
-        {% set DOOR = states('binary_sensor.tesla_ble_f549c4_charge_flap') %}
-        {% set kW = 0 %}
-        {# if is_state('binary_sensor.tesla_ble_f549c4_asleep','off') and is_state('switch.tesla_ble_f549c4_charger_switch','on') and is_state('binary_sensor.tesla_ble_f549c4_charge_flap','on') and is_state('binary_sensor.tesla_ble_f549c4_status','on') %} {% set kW = AMPS*230*3/1000 %} {% endif #}
-        {% set kW = states('sensor.tesla_charger_power') %}
-        {{ kW }}
 
   - sensor:
     - name: 'Autocharge-Difference'
       unit_of_measurement: "A"
       state: > 
         {# if there is a difference between optimal charge current and actual charge current, calculate the absolute value #}
-        {% set CHARGE = states('number.tesla_ble_f549c4_charging_amps')|float %}
+        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
         {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
+
+sensor:
+  - platform: filter
+    name: "filtered inverter power"
+    entity_id: sensor.inverter_input_power
+    filters:
+      - filter: time_simple_moving_average
+        window_size: "00:03"
+        precision: 0
+
 
 ```
 
@@ -153,12 +150,10 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    4.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Adjust.png" width=300>
-
-For the ease of debugging, here is the YAML definition: Keep in mind: My car is "Tesla BLE F549C4". If yours is "Thors_Hammer", the entity names need to be adjusted.
+These automations are very long, so I chose the YAML-text instead of the graphical editor.
 
 ```
-alias: Tesla-charge-adjust
+alias: Tesla-Charge-Adjust-BLE-ESP32
 description: When the car is home and charging, adjust the charging power to the PV output
 triggers:
   - trigger: time_pattern
@@ -170,7 +165,7 @@ triggers:
 conditions:
   - condition: state
     state: "on"
-    entity_id: switch.tesla_ble_f549c4_ble_connection
+    entity_id: binary_sensor.tesla_ble_f549c4_charge_flap
     enabled: true
   - condition: state
     entity_id: input_boolean.auto_manuell
@@ -253,8 +248,18 @@ actions:
                 %} {{ optimal_amps }}
             enabled: true
             action: number.set_value
+      - metadata: {}
+        data: {}
+        target:
+          entity_id: counter.charge_current_set
+        action: counter.increment
+        enabled: true
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 3
+          milliseconds: 0
 mode: single
-
 ```
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
