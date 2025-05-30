@@ -91,7 +91,6 @@ Chose the type "Threshold sensor":
         {% set Battery = states('sensor.battery_state_of_capacity')|float (0) %}
         {% set Grid = states('sensor.power_meter_active_power') |float (0) %}
         {% set Charge = states('sensor.tesla_charger_power')|float %}
-        {% set Throttle = states('input_number.tesla_charge_break') |float %}
         {% set Endoffastcharge = states('input_number.num_battery_min_home') |float %}
         {% set Teslabattery = states('sensor.tesla_battery') |float (0) %}
         {% set BatteryMaxDischarge = 4500 %}
@@ -113,8 +112,6 @@ Chose the type "Threshold sensor":
         {% if (PVAMP>6) and (Battery<40) %} {% set PVAMP = 3 %} {% endif %}
         {# Don't start charging under 3A because it's not efficient. #}
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
-        {# Under very high load, like cooking at noon, use throttle. Throttle is controlled by an automation #}
-        {% set PVAMP = PVAMP - Throttle %}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
         {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
