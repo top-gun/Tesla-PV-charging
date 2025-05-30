@@ -79,7 +79,7 @@ Chose the type "Threshold sensor":
    **Attention:**
 
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
-- My car is called "Tesla", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
+- My car is called "Tesla BLE F549C4", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
   - sensor:
     - name: 'Autocharge-optimal'
@@ -155,39 +155,52 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 For the ease of debugging, here is the YAML definition:
 
 ```
-alias: Tesla-Charge-Adjust
+alias: Tesla-Charge-Adjust-BLE-ESP32
 description: When the car is home and charging, adjust the charging power to the PV output
-trigger:
-  - platform: time_pattern
+triggers:
+  - trigger: time_pattern
     minutes: /1
-condition:
-  - type: is_plugged_in
-    condition: device
-    device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-    entity_id: binary_sensor.tesla_charger
-    domain: binary_sensor
-  - condition: device
-    device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-    domain: device_tracker
-    entity_id: device_tracker.tesla_location_tracker
-    type: is_home
+  - trigger: numeric_state
+    entity_id:
+      - sensor.autocharge_difference
+    above: 0
+conditions:
+  - condition: state
+    state: "on"
+    entity_id: binary_sensor.tesla_ble_f549c4_charge_flap
+    enabled: true
   - condition: state
     entity_id: input_boolean.auto_manuell
     state: "off"
-action:
+  - condition: state
+    entity_id: input_boolean.tesla_octopus_control
+    state: "off"
+actions:
   - if:
       - condition: numeric_state
         entity_id: sensor.autocharge_optimal
-        above: 1
-      - type: is_not_charging
-        condition: device
-        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-        entity_id: binary_sensor.tesla_charging
-        domain: binary_sensor
+        above: 2
+      - condition: numeric_state
+        entity_id: number.tesla_ble_f549c4_charging_limit
+        above: sensor.tesla_ble_f549c4_charge_level
+        enabled: true
+      - condition: state
+        entity_id: switch.tesla_ble_f549c4_charger
+        state: "off"
     then:
+      - if:
+          - condition: state
+            entity_id: binary_sensor.tesla_ble_f549c4_asleep
+            state: "on"
+        then:
+          - device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
+            domain: button
+            entity_id: a11f892686b5c231aa1c961fc9422526
+            type: press
+        enabled: true
       - type: turn_on
-        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-        entity_id: af4dad29a62461eaf513223c2649107c
+        device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
+        entity_id: 62889c031e9f5ef25b340008c0290cde
         domain: switch
   - if:
       - condition: state
@@ -197,42 +210,61 @@ action:
           hours: 0
           minutes: 5
           seconds: 0
-      - type: is_charging
-        condition: device
-        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-        entity_id: binary_sensor.tesla_charging
-        domain: binary_sensor
+      - condition: state
+        entity_id: sensor.tesla_ble_f549c4_charging_state
+        state: Charging
     then:
       - type: turn_off
-        device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
-        entity_id: switch.tesla_charger
+        device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
+        entity_id: 62889c031e9f5ef25b340008c0290cde
         domain: switch
-        enabled: true
-      - device_id: 6c8ec0c37f65e3a882fbb667e1e5f108
+      - device_id: 11f14eefb24fcdf2d4942c0547b91fec
         domain: number
-        entity_id: 8dfa97ec39cf127ff8849a9370377e7d
+        entity_id: 57cc0623c9a981dda2e637f157b63f9c
         type: set_value
-        value: 6
+        value: 16
         enabled: true
   - if:
       - condition: numeric_state
         entity_id: sensor.autocharge_difference
-        above: 1
-      - condition: and
-        conditions:
-          - condition: state
-            entity_id: switch.tesla_charger
-            state: "on"
+        above: 0
+        enabled: true
+      - condition: state
+        entity_id: sensor.tesla_ble_f549c4_charging_state
+        state: Charging
+        enabled: true
     then:
-      - service: number.set_value
-        data_template:
-          entity_id: number.tesla_charging_amps
+      - data_template:
+          entity_id: number.tesla_ble_f549c4_charging_amps
           value: >-
             {% set optimal_amps = states('sensor.autocharge_optimal') | int %}
             {{ optimal_amps }}
         enabled: true
+        action: number.set_value
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.autocharge_optimal
+            below: 5
+        then:
+          - data_template:
+              entity_id: number.tesla_ble_f549c4_charging_amps
+              value: >-
+                {% set optimal_amps = states('sensor.autocharge_optimal') | int
+                %} {{ optimal_amps }}
+            enabled: true
+            action: number.set_value
+      - metadata: {}
+        data: {}
+        target:
+          entity_id: counter.charge_current_set
+        action: counter.increment
+        enabled: true
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 3
+          milliseconds: 0
 mode: single
-
 ```
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
