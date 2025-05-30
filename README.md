@@ -426,6 +426,8 @@ card:
    5.5 Horizontal stacks (top left corner of my dashboard): 
    These are actually three horizontal stacks, but one is only visible in automatic mode, one only in manual mode. So you never see more than two of them.
 
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Visual-horizontal-stack.png" width=300>
+
    First row: (The permanent one)
 ```
 type: horizontal-stack
