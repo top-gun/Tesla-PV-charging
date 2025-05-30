@@ -170,9 +170,6 @@ conditions:
   - condition: state
     entity_id: input_boolean.auto_manuell
     state: "off"
-  - condition: state
-    entity_id: input_boolean.tesla_octopus_control
-    state: "off"
 actions:
   - if:
       - condition: numeric_state
