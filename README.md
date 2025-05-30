@@ -423,3 +423,121 @@ card:
   state_color: true
   title: Charge Control
 ```
+   5.5 Horizontal stacks (top left corner of my dashboard): 
+   These are actually three horizontal stacks, but one is only visible in automatic mode, one only in manual mode. So you never see more than two of them.
+
+   First row: (The permanent one)
+```
+type: horizontal-stack
+cards:
+  - type: custom:button-card
+    color_type: card
+    show_state: "yes"
+    name: Manuell
+    entity: input_boolean.auto_manuell
+  - type: custom:button-card
+    color_type: card
+    show_state: "yes"
+    name: Express
+    entity: input_boolean.tesla_express
+  - type: custom:button-card
+    entity: number.tesla_ble_f549c4_charging_limit
+    show_state: true
+    name: Ladelimit
+  - type: custom:button-card
+    color_type: card
+    color: rgb(250,250,250)
+    name: Klappe
+    state_display:
+      - - - öffnen
+    show_state: true
+    icon: mdi:lock-open
+    tap_action:
+      action: call-service
+      service: automation.trigger
+      target:
+        entity_id: automation.tesla-ladeklappe
+      data:
+        skip_condition: true
+  - type: custom:button-card
+    name: Update
+    icon: mdi:reload
+    entity: button.tesla_ble_f549c4_force_data_update
+    show_state: true
+    state_display: jetzt
+    tap_action:
+      action: call-service
+      service: button.press
+      service_data:
+        entity_id: button.tesla_ble_f549c4_force_data_update
+```
+   second row (for manual charging)
+
+```
+type: horizontal-stack
+cards:
+  - type: custom:button-card
+    color_type: card
+    show_state: true
+    show_icon: true
+    name: Charger
+    size: 15%
+    entity: switch.tesla_ble_f549c4_charger
+  - type: custom:button-card
+    name: Strom
+    entity: number.tesla_ble_f549c4_charging_amps
+    show_state: true
+    size: 15%
+  - type: custom:button-card
+    name: Status
+    entity: sensor.tesla_ble_f549c4_charging_state
+    show_state: true
+    size: 15%
+visibility:
+  - condition: state
+    entity: input_boolean.auto_manuell
+    state: "on"
+```
+
+   third row (automatic operation)
+
+```
+type: horizontal-stack
+cards:
+  - type: custom:button-card
+    color_type: card
+    show_state: true
+    show_icon: true
+    name: Auto schläft
+    icon: mdi:currency-eur
+    entity: binary_sensor.tesla_ble_f549c4_asleep
+    size: 10%
+  - type: custom:button-card
+    color_type: card
+    show_state: true
+    show_icon: true
+    icon: mdi:battery-charging
+    size: 10%
+    name: Laden
+    state:
+      - value: Charging
+        styles:
+          card:
+            - background-color: lightgreen
+      - value: Stopped
+        styles:
+          icon:
+            - color: grey
+      - value: Completed
+        styles:
+          icon:
+            - color: gold
+    entity: sensor.tesla_ble_f549c4_charging_state
+    tap_action:
+      action: more-info
+visibility:
+  - condition: state
+    entity: input_boolean.auto_manuell
+    state_not: "on"
+
+```
