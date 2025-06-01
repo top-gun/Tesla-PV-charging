@@ -383,38 +383,7 @@ layout_options:
 
    5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or express charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Control.png" width=300>
-
-```
-type: entities
-entities:
-  - entity: binary_sensor.tesla_ble_f549c4_charge_flap
-    secondary_info: last-changed
-    name: Onboardlader
-  - entity: sensor.autocharge_optimal
-    name: Empfohlener Ladestrom
-  - entity: sensor.tesla_actual_amps
-    name: Ladestrom jetzt
-    secondary_info: last-changed
-  - entity: counter.charge_current_set
-    name: Änderungen heute
-  - entity: binary_sensor.tesla_ble_f549c4_asleep
-    name: Tesla schläft
-    secondary_info: last-changed
-  - entity: sensor.tesla_ble_f549c4_ble_signal
-    name: BLE Signal
-  - entity: sensor.tesla_energy_added
-  - entity: sensor.tesla_ble_f549c4_charge_level
-  - entity: sensor.tesla_ble_f549c4_range
-state_color: true
-show_header_toggle: false
-title: Tesla Status
-layout_options:
-  grid_columns: 4
-  grid_rows: auto
-```
-   5.5 Horizontal stacks (top left corner of my dashboard): 
-   These are actually three horizontal stacks, but one is only visible in automatic mode, one only in manual mode. So you never see more than two of them.
+   These are actually three horizontal stacks, but at any given time, only two are visible.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Visual-horizontal-stack.png" width=300>
 
