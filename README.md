@@ -122,7 +122,7 @@ Chose the type "Threshold sensor":
         {% if (PVAMP<3) and (Charge==0) %} {% set PVAMP = 0 %} {% endif %}
         {# If we pull from the grid, adjust the charge current accordingly. In my system, Gridimport is a negative number #}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
-        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV_exact + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
+        {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
         {# avoid negative numbers. #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
