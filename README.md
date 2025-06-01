@@ -112,9 +112,6 @@ Chose the type "Threshold sensor":
         {% if Battery<90 and Battery>65 %} {% set PVAMP = PVAMP * 0.75 %} {% endif %}
         {% if Battery<=65 %} {% set PVAMP = PVAMP*0.65 %} {% endif %}
         {% if (Teslabattery>90) and (Battery<85) %} {% set PVAMP = PVAMP * 0.8 %} {% endif %}
-        {# When the house battery is above "Endoffastcharge", use at least 5A. When starting, use +5 for hysteresis #}
-        {# if (PVAMP<5) and (Battery>Endoffastcharge+5 )  %}  {% set PVAMP = 5 %} {% endif #} 
-        {# if (PVAMP<5) and (Battery>Endoffastcharge) and (Charge>0) %} {% set PVAMP = 5 %} {% endif #} 
         {# Under 30%, charge only the house battery, not the car. 3% hysteresis: Don't turn on until we reach 43%. #}
         {# Exception: When the PV output is really high, allow charging so we don't feed to the grid early #}
         {% if (Battery<30) and (Charge==0) and (PVAMP<6)  %} {% set PVAMP = 0 %} {% endif %} 
@@ -123,10 +120,12 @@ Chose the type "Threshold sensor":
         {# If we pull from the grid, adjust the charge current accordingly. In my system, Gridimport is a negative number #}
         {% if Grid < -300 %} {% set PVAMP = PVAMP + (Grid/230/3) %} {% endif %}
         {% if is_state('input_boolean.tesla_express', 'on') and (Battery>20) %} {% set PVAMP = ((PV + BatteryMaxDischarge + Grid)/230/3) |int %} {% endif %}
+        {# My pv system can only deliver 10kW  so we cut off at 14A #}
         {% if PVAMP>14 %} {% set PVAMP = 14%} {% endif %}
         {# avoid negative numbers. #}
         {% if PVAMP<0 %} {% set PVAMP = 0%} {% endif %}
-        {# tesla_gridladen is a command to load the car from the grid #}
+        {# tesla_gridladen is a command to load the car from the grid, I use that for Octopus #}
+        {# if is_state('input_boolean.tesla_gridladen', 'on') %} {% set PVAMP = 16 %} {% endif #}
         {{ PVAMP|int }}
 
   - sensor:
@@ -134,20 +133,10 @@ Chose the type "Threshold sensor":
       unit_of_measurement: "A"
       state: > 
         {# if there is a difference between optimal charge current and actual charge current, calculate the absolute value #}
-        {% set CHARGE = states('number.tesla_charging_amps')|float (0) %}
+        {% set CHARGE = states('number.tesla_ble_f549c4_charging_amps')|float %}
         {% set REQUIRED = states('sensor.autocharge_optimal') |float (0) %}
         {% set DIFF = (CHARGE - REQUIRED)|abs %}
         {{ DIFF|int }}
-
-sensor:
-  - platform: filter
-    name: "filtered inverter power"
-    entity_id: sensor.inverter_input_power
-    filters:
-      - filter: time_simple_moving_average
-        window_size: "00:03"
-        precision: 0
-
 
 ```
 
@@ -306,7 +295,7 @@ entities:
     entity: sensor.inverter_input_power
     display_zero_state: true
   individual:
-    - entity: sensor.tesla_chargepower
+    - entity: sensor.tesla_ble_f549c4_charge_power
       display_zero: true
       name: Tesla
       icon: mdi:car
@@ -342,7 +331,7 @@ My configuration:
 type: custom:mini-graph-card
 entities:
   - entity: sensor.tesla_battery
-  - entity: sensor.tesla_charger_power
+  - entity: sensor.tesla_ble_f549c4_charge_power
     name: Tesla Charge Power
     y_axis: secondary
     show_state: true
@@ -358,80 +347,71 @@ extrema: true
 
 
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/assets/3148118/438d8f52-deaf-4521-a13d-162fb1243fd8" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Charge-Status.png" width=300>
 
 
 The definition:
 
+```
 type: entities
 entities:
-  - entity: binary_sensor.tesla_charging
-  - entity: binary_sensor.tesla_charger
-    name: Tesla Ladekabel
+  - entity: binary_sensor.tesla_ble_f549c4_charge_flap
+    secondary_info: last-changed
+    name: Onboardlader
   - entity: sensor.autocharge_optimal
-  - entity: sensor.tesla_charger_power
-  - entity: switch.tesla_polling
-    name: Allow Tesla polling
-  - entity: button.tesla_force_data_update
+    name: Empfohlener Ladestrom
+  - entity: sensor.tesla_actual_amps
+    name: Ladestrom jetzt
+    secondary_info: last-changed
+  - entity: counter.charge_current_set
+    name: Änderungen heute
+  - entity: binary_sensor.tesla_ble_f549c4_asleep
+    name: Tesla schläft
+    secondary_info: last-changed
+  - entity: sensor.tesla_ble_f549c4_ble_signal
+    name: BLE Signal
+  - entity: sensor.tesla_energy_added
+  - entity: sensor.tesla_ble_f549c4_charge_level
+  - entity: sensor.tesla_ble_f549c4_range
 state_color: true
 show_header_toggle: false
 title: Tesla Status
+layout_options:
+  grid_columns: 4
+  grid_rows: auto
+```
 
    5.4 Tesla control: Information about the charging process, also switches that change to manual charge control (app) or express charging.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Extended-Charge-Control.png" width=300>
 
 ```
-type: conditional
-conditions:
-  - condition: state
-    entity: binary_sensor.tesla_charger
-    state: 'on'
-card:
-  type: entities
-  entities:
-    - entity: input_boolean.auto_manuell
-      name: Manual control
-    - type: conditional
-      conditions:
-        - entity: input_boolean.auto_manuell
-          state: 'off'
-      row:
-        entity: input_boolean.tesla_express
-        name: Express Mode
-    - type: conditional
-      conditions:
-        - entity: input_boolean.auto_manuell
-          state: 'on'
-      row:
-        entity: switch.tesla_charger
-    - type: conditional
-      conditions:
-        - entity: input_boolean.auto_manuell
-          state: 'on'
-      row:
-        entity: number.tesla_charging_amps
-        name: Charge Amps
-    - type: conditional
-      conditions:
-        - entity: input_boolean.auto_manuell
-          state: 'off'
-        - entity: input_boolean.tesla_express
-          state: 'off'
-      row:
-        entity: input_number.num_battery_min_home
-    - entity: number.tesla_charge_limit
-      name: Charge Limit
-    - type: conditional
-      conditions:
-        - entity: switch.tesla_charger
-          state: 'on'
-      row:
-        entity: sensor.tesla_time_charge_complete
-        name: Charge complete
-  show_header_toggle: false
-  state_color: true
-  title: Charge Control
+type: entities
+entities:
+  - entity: binary_sensor.tesla_ble_f549c4_charge_flap
+    secondary_info: last-changed
+    name: Onboardlader
+  - entity: sensor.autocharge_optimal
+    name: Empfohlener Ladestrom
+  - entity: sensor.tesla_actual_amps
+    name: Ladestrom jetzt
+    secondary_info: last-changed
+  - entity: counter.charge_current_set
+    name: Änderungen heute
+  - entity: binary_sensor.tesla_ble_f549c4_asleep
+    name: Tesla schläft
+    secondary_info: last-changed
+  - entity: sensor.tesla_ble_f549c4_ble_signal
+    name: BLE Signal
+  - entity: sensor.tesla_energy_added
+  - entity: sensor.tesla_ble_f549c4_charge_level
+  - entity: sensor.tesla_ble_f549c4_range
+state_color: true
+show_header_toggle: false
+title: Tesla Status
+layout_options:
+  grid_columns: 4
+  grid_rows: auto
 ```
    5.5 Horizontal stacks (top left corner of my dashboard): 
    These are actually three horizontal stacks, but one is only visible in automatic mode, one only in manual mode. So you never see more than two of them.
