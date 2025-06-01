@@ -521,9 +521,19 @@ cards:
     show_state: true
     show_icon: true
     name: Auto schläft
-    icon: mdi:currency-eur
+    icon: mdi:sleep
     entity: binary_sensor.tesla_ble_f549c4_asleep
     size: 10%
+    state:
+      - value: "off"
+        styles:
+          card:
+            - background-color: lightgreen
+        icon: mdi:sleep-off
+      - value: "on"
+        styles:
+          icon:
+            - color: lightyellow
   - type: custom:button-card
     color_type: card
     show_state: true
