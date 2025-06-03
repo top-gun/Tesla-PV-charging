@@ -148,7 +148,7 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
 These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=600>
 
 
 ```
