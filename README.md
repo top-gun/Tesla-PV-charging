@@ -81,6 +81,7 @@ Chose the type "Threshold sensor":
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
 - My car is called "Tesla BLE F549C4", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
+template:
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
@@ -150,9 +151,11 @@ These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=600>
 
-
+<details>
+   <spoiler>Full Yaml text for reference</spoiler>
 ```
 alias: Tesla-Charge-Adjust-BLE-ESP32
+   
 description: When the car is home and charging, adjust the charging power to the PV output
 triggers:
   - trigger: time_pattern
@@ -260,6 +263,7 @@ actions:
           milliseconds: 0
 mode: single
 ```
+</details>
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
