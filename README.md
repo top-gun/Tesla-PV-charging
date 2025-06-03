@@ -152,7 +152,6 @@ These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=600>
 
 <details>
-   <spoiler>Full Yaml text for reference</spoiler>
 ```
 alias: Tesla-Charge-Adjust-BLE-ESP32
    
