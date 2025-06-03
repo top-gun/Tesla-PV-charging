@@ -146,7 +146,10 @@ We need several automations. Unfortunately, they can grow pretty long, and there
 
    4.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
-These automations are very long, so I chose the YAML-text instead of the graphical editor.
+These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=300>
+
 
 ```
 alias: Tesla-Charge-Adjust-BLE-ESP32
