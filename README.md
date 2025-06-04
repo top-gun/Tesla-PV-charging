@@ -155,7 +155,7 @@ These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Advanced-Tesla-Leaving.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/IMG_1275.png" width=300>
 
    4.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
 
