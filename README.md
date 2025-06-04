@@ -159,9 +159,7 @@ These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
 
    4.3 Tesla-1800-charge-socket-90p: No longer needed and removed,
 
-   4.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
+   4.4 Tesla-throttle-high-load: No longer needed and removed. This is now handled in the calculation of the optimum current.
 
 
 ### 5. Fancy visualization:
