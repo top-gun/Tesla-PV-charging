@@ -81,6 +81,7 @@ Chose the type "Threshold sensor":
 - The entities sensor.battery_state_of_capacity and sensor.inverter_input_power are specific to my Huawei PV system. If you run a Fronius, SolarEdge, Victron, Sungrow or whatever PV system, you will need to find the right entity names for your system.
 - My car is called "Tesla BLE F549C4", therefore the entities for my car have "tesla" after the dot. If your cars name is "godzilla", you need to change that to ie sensor.godzilla_charger_power . 
 ```
+template:
   - sensor:
     - name: 'Autocharge-optimal'
       unit_of_measurement: "A"
@@ -142,136 +143,23 @@ Chose the type "Threshold sensor":
 
 ### 4. Automations:
 
-We need several automations. Unfortunately, they can grow pretty long, and there is no really good way to export them. So sorry if I can only give you some very huge screenshots. If anybody know a tool for making better visual representations, please let me know.
+We need several automations. Unfortunately, they can grow pretty long, and there is no really good way to export them. So sorry if I can only give you some very huge screenshots.
 
    4.1 Tesla-Charge-Adjust: This most important one will simply start every 60s and, after checking the car is at home and wired for charging, set the right current and start or stop the charging process.
 
 These automations refer to Tesla-BLE-F549C4, you need to adjust the name.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla-Charge-Adjust.png" width=600>
 
 
-```
-alias: Tesla-Charge-Adjust-BLE-ESP32
-description: When the car is home and charging, adjust the charging power to the PV output
-triggers:
-  - trigger: time_pattern
-    minutes: /1
-  - trigger: numeric_state
-    entity_id:
-      - sensor.autocharge_difference
-    above: 0
-conditions:
-  - condition: state
-    state: "on"
-    entity_id: binary_sensor.tesla_ble_f549c4_charge_flap
-    enabled: true
-  - condition: state
-    entity_id: input_boolean.auto_manuell
-    state: "off"
-actions:
-  - if:
-      - condition: numeric_state
-        entity_id: sensor.autocharge_optimal
-        above: 2
-      - condition: numeric_state
-        entity_id: number.tesla_ble_f549c4_charging_limit
-        above: sensor.tesla_ble_f549c4_charge_level
-        enabled: true
-      - condition: state
-        entity_id: switch.tesla_ble_f549c4_charger
-        state: "off"
-    then:
-      - if:
-          - condition: state
-            entity_id: binary_sensor.tesla_ble_f549c4_asleep
-            state: "on"
-        then:
-          - device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
-            domain: button
-            entity_id: a11f892686b5c231aa1c961fc9422526
-            type: press
-        enabled: true
-      - type: turn_on
-        device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
-        entity_id: 62889c031e9f5ef25b340008c0290cde
-        domain: switch
-  - if:
-      - condition: state
-        entity_id: binary_sensor.charge_no_current
-        state: "on"
-        for:
-          hours: 0
-          minutes: 5
-          seconds: 0
-      - condition: state
-        entity_id: sensor.tesla_ble_f549c4_charging_state
-        state: Charging
-    then:
-      - type: turn_off
-        device_id: 72e9ad1fa6c4c0bee0c363d3cb012a8e
-        entity_id: 62889c031e9f5ef25b340008c0290cde
-        domain: switch
-      - device_id: 11f14eefb24fcdf2d4942c0547b91fec
-        domain: number
-        entity_id: 57cc0623c9a981dda2e637f157b63f9c
-        type: set_value
-        value: 16
-        enabled: true
-  - if:
-      - condition: numeric_state
-        entity_id: sensor.autocharge_difference
-        above: 0
-        enabled: true
-      - condition: state
-        entity_id: sensor.tesla_ble_f549c4_charging_state
-        state: Charging
-        enabled: true
-    then:
-      - data_template:
-          entity_id: number.tesla_ble_f549c4_charging_amps
-          value: >-
-            {% set optimal_amps = states('sensor.autocharge_optimal') | int %}
-            {{ optimal_amps }}
-        enabled: true
-        action: number.set_value
-      - if:
-          - condition: numeric_state
-            entity_id: sensor.autocharge_optimal
-            below: 5
-        then:
-          - data_template:
-              entity_id: number.tesla_ble_f549c4_charging_amps
-              value: >-
-                {% set optimal_amps = states('sensor.autocharge_optimal') | int
-                %} {{ optimal_amps }}
-            enabled: true
-            action: number.set_value
-      - metadata: {}
-        data: {}
-        target:
-          entity_id: counter.charge_current_set
-        action: counter.increment
-        enabled: true
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 3
-          milliseconds: 0
-mode: single
-```
 
    4.2 Tesla-Leaving: When the car leaves home, set the charge mode to automatic and the house battery to 75% minimum for fast charging.
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Advanced-Tesla-Leaving.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/IMG_1275.png" width=300>
 
-   4.3 Tesla-1800-charge-socket-90p: At 6PM, set the minimum socket for the house battery to 90% so the house battery gets as full as possible
+   4.3 Tesla-1800-charge-socket-90p: No longer needed and removed,
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-1800-socket-90p.png" width=300>
-
-   4.4 Tesla-throttle-high-load: You may run into situations where high house load and high car charging exceed the inverter capacity. My inverter is capable of 11,000W, I set the threshold to 10,500W. Adjust to about 5% below your inverter's capacity.
-
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Automation-throttle-charge-high-load.png" width=300>
+   4.4 Tesla-throttle-high-load: No longer needed and removed. This is now handled in the calculation of the optimum current.
 
 
 ### 5. Fancy visualization:
