@@ -91,6 +91,8 @@ template:
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
         {# PV yield is the current output of the pv system #}
+        {# Attention: Use "* 1000" only if your PV delivers power in Kilowatts. #}
+        {# if you see 8.5kw as "8.5", multiply by 1000. If you see 8500W, remove the "* 1000" #}
         {% set PV = states('sensor.inverter_input_power')|float * 1000 -500 %}
         {# HP is the power requirement of my house heatpump. I set this to 0 in the reference config. #}
         {% set HP = 0|float %}
