@@ -232,7 +232,7 @@ My configuration:
 ```
 type: custom:mini-graph-card
 entities:
-  - entity: sensor.tesla_battery
+  - entity: sensor.tesla_ble_f549c4_charge_level
   - entity: sensor.tesla_ble_f549c4_charge_power
     name: Tesla Charge Power
     y_axis: secondary
@@ -262,7 +262,7 @@ entities:
     name: Onboardlader
   - entity: sensor.autocharge_optimal
     name: Empfohlener Ladestrom
-  - entity: sensor.tesla_actual_amps
+  - entity: sensor.tesla_ble_f549c4_charge_current
     name: Ladestrom jetzt
     secondary_info: last-changed
   - entity: counter.charge_current_set
@@ -272,7 +272,7 @@ entities:
     secondary_info: last-changed
   - entity: sensor.tesla_ble_f549c4_ble_signal
     name: BLE Signal
-  - entity: sensor.tesla_energy_added
+  - entity: sensor.tesla_energy_added 
   - entity: sensor.tesla_ble_f549c4_charge_level
   - entity: sensor.tesla_ble_f549c4_range
 state_color: true
