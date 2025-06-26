@@ -64,7 +64,7 @@ Get to know the Tesla and PV integrations before you continue. Especially, you s
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_Charge_Break.png" width=300>
    
-3.1.3 Chose the type "toggle", set to off as a stating point:
+3.1.3 Chose the type "toggle", set to off as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Express-Charge.png" width=300>
 
