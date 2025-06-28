@@ -72,6 +72,10 @@ Get to know the Tesla and PV integrations before you continue. Especially, you s
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Threshold_sensor_no_charge.png" width=300>
 
+3.1.5 Chose the type "counter":
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/charge-current-set.png" width=300>
+
    
 
    3.2 In Studio Code Server, open the file "configuration.yaml" and add the following sensors. 
