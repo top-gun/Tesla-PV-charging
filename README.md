@@ -74,7 +74,7 @@ Get to know the Tesla and PV integrations before you continue. Especially, you s
 
 3.1.5 Chose the type "counter":
 
-   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/charge-current-set.png" width=300>
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/counter-charge-set.png" width=300>
 
    
 
