@@ -34,7 +34,7 @@ A wallbox (if you charge 3-phase) or the Tesla AC charger that plugs into any ac
 
 Then you want Home-Assistant as a house automation system. It is the foundation for what we do here. Home-Assistant has plenty of integrations into the typical house stuff like wall plugs, heating valves and so on. There are integrations for all the common PV brands through a community-managed integration appstore called HACS. You can run Home-Assistant on a Raspberry Pi or similar small computers. The company behind Home-Assistant does also sell ready-to-use systems with their own hardware. If you can find or have a Raspberry Pi at hand, it's cheaper and just fine.
 
-ESP32 for BLE-control: An inexpensive (5-8 Euro) device to avoid the cloud charges from Tesla. Since 2025, Tesla charges for the use of their cloud API. Commands are especially expensive, and since PV output varies wildly with every cloud on the sky, we send a lot of commands. Therefore, I switched to Bluetooth (BLE)-control of the car. What you need is a cheap mini-computer "ESP32" which is available on Amazon or Ali Express for about 5 Euro/USD. The simplest ones are called "NodeMCU Devkit-C" and are adequate for the job. I recommend to buy from Amazon as it's faster, but you can save a bit ordering from AliExpress. I recommend these: https://www.amazon.de/diymore-NodeMCU-Nodemcu-Development-Bluetooth/dp/B0C6QHLGJG . If you find one without the soldered pins it's actually more practical because you only plug in a USB-C power cable. These have a modified processor. Some are labelled as ESP32-C3. You can use them, it needs just a few extra lines in the configuration later on in this document. Each ESP32 gets paired to one vehicle. If you own two Teslas, get two ESP32-dongles. They are usually sold in packs of two or three anyway.
+ESP32 for BLE-control: An inexpensive (5-8 Euro) device to avoid the cloud charges from Tesla. Since 2025, Tesla charges for the use of their cloud API. Commands are especially expensive, and since PV output varies wildly with every cloud on the sky, we send a lot of commands. Therefore, I switched to Bluetooth (BLE)-control of the car. What you need is a cheap mini-computer "ESP32" which is available on Amazon or Ali Express for about 5 Euro/USD. The simplest ones are called "NodeMCU Devkit-C" and are adequate for the job. I recommend to buy from Amazon as it's faster, but you can save a bit ordering from AliExpress. I recommend these: https://www.amazon.de/dp/B0DHY6XH78?th=1 or these: https://de.aliexpress.com/item/1005003299215808.html?channel=twinner. If you find one without the soldered pins it's actually more practical because you only plug in a USB-C power cable. These have a modified processor. Some are labelled as ESP32-C3. You can use them, it needs just a few extra lines in the configuration later on in this document. Each ESP32 gets paired to one vehicle. If you own two Teslas, get two ESP32-dongles. They are usually sold in packs of two or three anyway.
 
 ## Steps:
 
@@ -44,7 +44,7 @@ ESP32 for BLE-control: An inexpensive (5-8 Euro) device to avoid the cloud charg
 
    1.2 You should install "Studio Code Server", it's a comfortable editor for the Home Assistant configuration files. 
 
-   1.3 Tesla control: In Home Assistant, you need the Add-On "Home-Assistant ESP Device Builder". This programs the ESP32 dongle that will talk to your car, controlling the charge process. I wrote an extra guide that explains how to set up the Add-on, program your ESP32 for the task, and how to pair the ESP32 to your car. The guide is here: https://docs.google.com/document/d/1W33jPQH4uAfSzb8rHvg7sBFm9zY_D-149qrtlnRN2xQ/edit?usp=sharing 
+   1.3 Tesla control: In Home Assistant, you need the Add-On "Home-Assistant ESP Device Builder". This programs the ESP32 dongle that will talk to your car, controlling the charge process. I wrote an extra guide that explains how to set up the Add-on, program your ESP32 for the task, and how to pair the ESP32 to your car. The guide is here: https://docs.google.com/document/d/1W33jPQH4uAfSzb8rHvg7sBFm9zY_D-149qrtlnRN2xQ/edit?usp=sharing or these because they come with a case: 
 Follow the instructions to the end. You will now be able to see your Tesla in Home Assistant as a new device, see the SOC and if it's charging, and you can manually control the charger, even setting the charing current in Amps. We will learn how to automatically charge the car later on :)
    
    1.4 In HACS, install the integration for your PV system and connect it with your local PV system. You don't need all the bells an whistles, the numbers for PV output in Watt and the state of charge of your house battery in percent is all you really need for this. If you can configure the update intervall, 30s is a good starting point.
@@ -56,21 +56,25 @@ Get to know the Tesla and PV integrations before you continue. Especially, you s
 ### 3. Sensors: Now, we will create a few sensors and variables that are needed to control the PV current.
    3.1 In Settings/Devices/Helpers, create the following helpers. Keep in mind: My car is called "Tesla BLE F549C4" in HA. You may call your car "Tin Lizzy" or "Thors Hammover", that's fine, but the names of your entities will follow your creative outbreak. 
    
-Chose the type "toggle", set to off as a starting point:
+3.1.1 Chose the type "toggle", set to off as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Hand-Control.png" width=300>
 
-Chose the type "number", set to 0 as a starting point:
+3.1.2 Chose the type "number", set to 0 as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Tesla_Charge_Break.png" width=300>
    
-Chose the type "toggle", set to off as a stating point:
+3.1.3 Chose the type "toggle", set to off as a starting point:
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Helper-Express-Charge.png" width=300>
 
-Chose the type "Threshold sensor":
+3.1.4 Chose the type "Threshold sensor":
 
    <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/Threshold_sensor_no_charge.png" width=300>
+
+3.1.5 Chose the type "counter":
+
+   <img src="https://github.com/top-gun/Tesla-PV-charging/blob/main/pictures/charge-current-set.png" width=300>
 
    
 
@@ -91,6 +95,8 @@ template:
         {# calculate the optimal charge current based on several parameters: #}
         {# PV yield, house battery SOC, vehicle battery SOC, Grid consumption #}
         {# PV yield is the current output of the pv system #}
+        {# Attention: Use "* 1000" only if your PV delivers power in Kilowatts. #}
+        {# if you see 8.5kw as "8.5", multiply by 1000. If you see 8500W, remove the "* 1000" #}
         {% set PV = states('sensor.inverter_input_power')|float * 1000 -500 %}
         {# HP is the power requirement of my house heatpump. I set this to 0 in the reference config. #}
         {% set HP = 0|float %}
@@ -230,7 +236,7 @@ My configuration:
 ```
 type: custom:mini-graph-card
 entities:
-  - entity: sensor.tesla_battery
+  - entity: sensor.tesla_ble_f549c4_charge_level
   - entity: sensor.tesla_ble_f549c4_charge_power
     name: Tesla Charge Power
     y_axis: secondary
@@ -260,7 +266,7 @@ entities:
     name: Onboardlader
   - entity: sensor.autocharge_optimal
     name: Empfohlener Ladestrom
-  - entity: sensor.tesla_actual_amps
+  - entity: sensor.tesla_ble_f549c4_charge_current
     name: Ladestrom jetzt
     secondary_info: last-changed
   - entity: counter.charge_current_set
@@ -270,7 +276,7 @@ entities:
     secondary_info: last-changed
   - entity: sensor.tesla_ble_f549c4_ble_signal
     name: BLE Signal
-  - entity: sensor.tesla_energy_added
+  - entity: sensor.tesla_energy_added 
   - entity: sensor.tesla_ble_f549c4_charge_level
   - entity: sensor.tesla_ble_f549c4_range
 state_color: true
